@@ -1,6 +1,7 @@
 import streamlit as st
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 # from openai import OpenAI
 import time
@@ -16,40 +17,48 @@ def stream_data(stream_str):
         time.sleep(0.15)
 
 
-def read_system_prompt(file_path: str) -> str:
+def read_file_content(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as file:
-        system_prompt = file.read()
-    return system_prompt
+        file_content = file.read()
+    return file_content
 
 
 def generate_response_gemini(prompt: str) -> str:
 
-    system_prompt = read_system_prompt("./system_prompt.txt")
+    system_prompt = read_file_content("./static/system_prompt.txt")
 
-    genai.configure(api_key=st.secrets["gemini_api_key"])
-
-    # Create the model
-    generation_config = {
-        "temperature": 1,
-        "top_p": 0.95,
-        "top_k": 64,
-        "max_output_tokens": 65536,
-        "response_mime_type": "text/plain",
-    }
-
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash-preview-04-17",
-        generation_config=generation_config,
-        system_instruction=system_prompt,
+    client = genai.Client(
+        api_key=os.environ.get("GEMINI_API_KEY"),
     )
 
-    chat_session = model.start_chat()
+    animal_adoption_file = f'animal info for adoption: {read_file_content("./static/animal_info.json")}\n\n'
 
-    response = chat_session.send_message(prompt)
+    model = "gemini-2.5-flash-preview-04-17"
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(text=prompt),
+            ],
+        ),
+    ]
+    generate_content_config = types.GenerateContentConfig(
+        temperature=0,
+        response_mime_type="text/plain",
+        system_instruction=[
+            # TODO: better usage method of `animal_adoption_file`
+            types.Part.from_text(text=animal_adoption_file),
+            types.Part.from_text(text=system_prompt),
+        ],
+    )
 
-    print(response.text)
+    generate_content = client.models.generate_content(
+        model=model,
+        contents=contents,
+        config=generate_content_config,
+    )
 
-    return response.text
+    return generate_content.text
 
 
 def main():
