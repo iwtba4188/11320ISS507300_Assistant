@@ -1,6 +1,6 @@
 import json
 
-from utils import read_file_content
+from utils.helpers import read_file_content
 
 
 def get_awaiting_adoption_pet_info() -> dict:

@@ -43,6 +43,22 @@
         "message": "💬 {user_name}'s Chatbot",
         "description": "The page title in pet consultant page"
     },
+    "pet.chat.spinner.func_call_text": {
+        "message": "Calling {func_call_name}...",
+        "description": "The loading text in pet consultant page"
+    },
+    "pet.chat.badge.func_call_success": {
+        "message": "Success calling function `{func_name}`!",
+        "description": "The badge of function call success in pet consultant page"
+    },
+    "pet.chat.badge.func_call_failure": {
+        "message": "Fail calling function `{func_name}`!!!",
+        "description": "The badge of function call failure in pet consultant page"
+    },
+    "pet.chat.badge.think_again": {
+        "message": "Think again using results from function calls.",
+        "description": "The badge of information about thinking again in pet consultant page"
+    },
     "week10.2d.page_title": {
         "message": "Word2Vec 2D Visualization",
         "description": "The page title in the title bar of week 10 Q1-1 2D"

@@ -8,7 +8,7 @@ from google import genai
 from google.genai import types
 
 from utils.function_call import get_awaiting_adoption_pet_info
-from utils import read_file_content
+from utils.helpers import read_file_content, success_badge, error_badge, info_badge
 from utils.i18n import i18n
 
 
@@ -86,6 +86,36 @@ def gen_gemini_configs(prompt: str) -> dict:
     }
 
 
+def function_calling(func_call_name: str) -> dict:
+    """
+    Call the specified function and handle any exceptions.
+
+    Arguments:
+        func_call_name (str): The name of the function to call
+
+    Returns:
+        dict: A dictionary containing the status and result of the function call
+    """
+
+    status = ""
+
+    try:
+        if func_call_name == "get_awaiting_adoption_pet_info":
+            result = get_awaiting_adoption_pet_info()
+        else:
+            raise ValueError(f"Unknown function call: {func_call_name}")
+    except Exception as e:
+        status = "error"
+        result = str(e)
+    else:
+        status = "success"
+
+    return {
+        "status": status,
+        "result": result,
+    }
+
+
 def gemini_function_calling(
     st_c_chat,
     gemini_configs: dict,
@@ -103,33 +133,44 @@ def gemini_function_calling(
         Generator: Yields response stream text
     """
 
-    for tool_call in function_calls:
+    for func_call in function_calls:
+        spinner_func_call_text = i18n.get_message(
+            "pet.chat.spinner.func_call_text"
+        ).format(func_call_name=func_call.name)
+
         with (
             st_c_chat,
-            st.spinner(f"Calling {tool_call.name}...", show_time=True),
+            st.spinner(spinner_func_call_text, show_time=True),
         ):
-            time.sleep(1)
-            if tool_call.name == "get_awaiting_adoption_pet_info":
-                result = get_awaiting_adoption_pet_info()
+            func_call_result = function_calling(func_call.name)
 
             function_response_part = types.Part.from_function_response(
-                name=tool_call.name,
-                response={"result": result},
+                name=func_call.name,
+                response={"result": func_call_result["result"]},
             )
             gemini_configs["contents"].append(
-                types.Content(role="model", parts=[types.Part(function_call=tool_call)])
+                types.Content(role="model", parts=[types.Part(function_call=func_call)])
             )
             gemini_configs["contents"].append(
                 types.Content(role="user", parts=[function_response_part])
             )
 
-        yield from str_stream(
-            f"\n:green-badge[:material/check: Success calling function `{tool_call.name}`!]\n\n"
+            time.sleep(1)
+
+        func_call_msg_i18n_key = (
+            f"pet.chat.badge.func_call_{func_call_result['status']}"
+        )
+        func_call_msg = i18n.get_message(func_call_msg_i18n_key).format(
+            func_name=func_call.name
         )
 
-    yield from str_stream(
-        f"\n:blue-badge[:material/psychology: Think again using all results.]\n\n"
-    )
+        if func_call_result["status"] == "error":
+            yield from str_stream(error_badge(func_call_msg))
+        else:
+            yield from str_stream(success_badge(func_call_msg))
+
+    think_again_msg = i18n.get_message("pet.chat.badge.think_again")
+    yield from str_stream(info_badge(think_again_msg))
 
     yield from gemini_response_stream(st_c_chat, gemini_configs)
 
