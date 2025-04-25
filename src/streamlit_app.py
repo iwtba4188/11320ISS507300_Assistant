@@ -3,7 +3,16 @@ import streamlit as st
 from utils.i18n import i18n
 
 
-def sidebar_name_to_page_title(pg_title: str) -> None:
+def sidebar_name_to_page_title(pg_title: str) -> str:
+    """
+    Convert sidebar page labels to corresponding page titles based on i18n translations.
+
+    Arguments:
+        pg_title (str): The sidebar page label to convert
+
+    Returns:
+        str: The corresponding page title for the given sidebar label
+    """
     if pg_title == i18n.get_message("sidebar.pet.chat.page_label"):
         return i18n.get_message("pet.chat.page_title")
     elif pg_title == i18n.get_message("sidebar.week10.2d.page_label"):
@@ -19,6 +28,15 @@ def sidebar_name_to_page_title(pg_title: str) -> None:
 
 
 def setup_pages() -> None:
+    """
+    Configure and setup the Streamlit application pages.
+
+    Sets up navigation with localized page titles, configures page settings,
+    and runs the selected page.
+
+    Returns:
+        None
+    """
     # TODO: When switching to the new page, the page title is flicking from
     #       `pet_sidebar_page_title` to `pet_page_config_page_title`.
     #
@@ -75,6 +93,15 @@ def setup_pages() -> None:
 
 
 def setup_lang() -> None:
+    """
+    Set the application language based on the user selection in the sidebar.
+
+    Reads the selected language from the session state and configures
+    the i18n module accordingly.
+
+    Returns:
+        None
+    """
     selected_lang = st.session_state["selected_lang"]
 
     if selected_lang == "English":
@@ -88,6 +115,15 @@ def setup_lang() -> None:
 
 
 def setup_sidebar() -> None:
+    """
+    Configure and display the application sidebar.
+
+    Sets up the sidebar with a language selector that allows users to change
+    the application language.
+
+    Returns:
+        None
+    """
     with st.sidebar:
         st.selectbox(
             "Language",

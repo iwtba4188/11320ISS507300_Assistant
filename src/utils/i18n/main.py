@@ -37,6 +37,15 @@ class I18n:
         print(f"Available languages: {self.get_valid_languages()}")
 
     def _validate_translations(self) -> None:
+        """
+        Validate that translation files exist and meet required format.
+
+        Raises:
+            FileNotFoundError: If no translation files are found
+
+        Returns:
+            None
+        """
         if not self._translations:
             raise FileNotFoundError(
                 f"Could not find any translation files in {self._i18n_folder_path}"
@@ -45,7 +54,16 @@ class I18n:
         # TODO: Implement validation logic for translations
         pass
 
-    def _build_translations(self) -> None:
+    def _build_translations(self) -> dict:
+        """
+        Build a dictionary of translations from JSON files in the i18n folder.
+
+        Scans the i18n folder path for `messages.json` files and loads them into a dictionary
+        where keys are language codes.
+
+        Returns:
+            dict: Dictionary of translations with language codes as keys
+        """
         import os
         import json
 
@@ -62,21 +80,65 @@ class I18n:
         return translations
 
     def set_lang(self, language: str) -> None:
+        """
+        Set the current language for translations.
+
+        If the specified language is not available, falls back to the default language.
+
+        Arguments:
+            language (str): Language code to set as current language
+
+        Returns:
+            None
+        """
         if language in self._translations.keys():
             self._lang = language
         else:
             self._lang = self._default_lang
 
     def set_to_default_lang(self) -> None:
+        """
+        Reset the current language to the default language.
+
+        Returns:
+            None
+        """
         self._lang = self._default_lang
 
     def get_default_lang(self) -> str:
+        """
+        Get the default language code.
+
+        Returns:
+            str: The default language code
+        """
         return self._default_lang
 
     def get_valid_languages(self) -> list[str]:
+        """
+        Get a list of all valid language codes available for translation.
+
+        Returns:
+            list[str]: List of available language codes
+        """
         return list(self._translations.keys())
 
     def get_message(self, key: str) -> str:
+        """
+        Get a translated message for the given key.
+
+        Attempts to find the translation in the current language first, then falls back
+        to the default language if not found. Raises an error if the key doesn't exist in either.
+
+        Arguments:
+            key (str): The translation key to look up
+
+        Returns:
+            str: The translated message text
+
+        Raises:
+            KeyError: If the key is not found in any language
+        """
         try:
             return self._translations[self._lang][key]["message"]
         except KeyError:

@@ -18,17 +18,40 @@ user_image = "https://www.w3schools.com/howto/img_avatar.png"
 
 
 def page_init() -> None:
+    """
+    Initialize the page by setting the title with the user's name.
+
+    Returns:
+        None
+    """
     st.title(i18n.get_message("pet.chat.doc_title").format(user_name=user_name))
 
 
-def str_stream(text: str) -> Generator[str, None, None]:
-    """Yield each character in the string with a delay."""
+def str_stream(text: str) -> Generator:
+    """
+    Yield each character in the string with a small delay to create a typing effect.
+
+    Arguments:
+        text (str): The text to stream character by character
+
+    Returns:
+        Generator: A generator yielding individual characters
+    """
     for char in text:
         yield char
         time.sleep(0.005)
 
 
 def gen_gemini_configs(prompt: str) -> dict:
+    """
+    Generate configuration dictionary for Gemini API call.
+
+    Arguments:
+        prompt (str): The user's input prompt to send to the model
+
+    Returns:
+        dict: Configuration dictionary containing model, contents, and config settings for the Gemini API
+    """
     system_prompt = read_file_content("./src/static/system_prompt.txt")
 
     model = "gemini-2.5-flash-preview-04-17"
@@ -67,8 +90,18 @@ def gemini_function_calling(
     st_c_chat,
     gemini_configs: dict,
     function_calls: list[types.FunctionCall],
-):
-    """Handle function calling and response streaming."""
+) -> Generator:
+    """
+    Handle function calling and response streaming for Gemini API.
+
+    Arguments:
+        st_c_chat: Streamlit chat container to display messages
+        gemini_configs (dict): Configuration dictionary for Gemini API
+        function_calls (list[types.FunctionCall]): List of function calls to process
+
+    Returns:
+        Generator: Yields response stream text
+    """
 
     for tool_call in function_calls:
         with (
@@ -101,7 +134,17 @@ def gemini_function_calling(
     yield from gemini_response_stream(st_c_chat, gemini_configs)
 
 
-def gemini_response_stream(st_c_chat, gemini_configs: dict):
+def gemini_response_stream(st_c_chat, gemini_configs: dict) -> Generator:
+    """
+    Stream responses from the Gemini model and handle any function calls.
+
+    Arguments:
+        st_c_chat: Streamlit chat container to display messages
+        gemini_configs (dict): Configuration dictionary for Gemini API
+
+    Returns:
+        Generator: Yields response stream text and processes any function calls
+    """
 
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
@@ -124,9 +167,16 @@ def gemini_response_stream(st_c_chat, gemini_configs: dict):
         yield from gemini_function_calling(st_c_chat, gemini_configs, function_calls)
 
 
-
-
 def chat_bot():
+    """
+    Initialize and manage the chat interface with the Gemini model.
+
+    This function sets up the chat container, displays chat history,
+    and defines an inner function to handle user inputs and model responses.
+
+    Returns:
+        None
+    """
 
     # Chat section container
     st_c_chat = st.container(border=True)
@@ -142,6 +192,15 @@ def chat_bot():
             st.markdown((history["content"]))
 
     def chat(prompt: str):
+        """
+        Process user input and generate model response.
+
+        Arguments:
+            prompt (str): User input text to send to the model
+
+        Returns:
+            None
+        """
         st_c_chat.chat_message("user", avatar=user_image).write(prompt)
         st.session_state.history.append({"role": "user", "content": prompt})
 
