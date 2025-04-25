@@ -31,6 +31,7 @@ class I18n:
         self._lang = lang if lang else default_lang
         self.set_lang(self._lang)
 
+        # TODO: Using logging instead of print statements
         print(f"Current language: {self._lang}")
         print(f"Default language: {self._default_lang}")
         print(f"Available languages: {self.get_valid_languages()}")

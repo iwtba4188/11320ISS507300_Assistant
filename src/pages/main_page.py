@@ -5,6 +5,9 @@ import streamlit as st
 
 from google import genai
 from google.genai import types
+
+from utils.function_call import get_awaiting_adoption_pet_info
+from utils import read_file_content
 from utils.i18n import i18n
 
 
@@ -18,27 +21,13 @@ def page_init() -> None:
     st.title(i18n.get_message("pet.chat.doc_title").format(user_name=user_name))
 
 
-def stream_data(stream_str):
-    for word in stream_str.split(" "):
-        yield word + " "
-        time.sleep(0.15)
+def gemini_response_stream(prompt: str):
 
-
-def read_file_content(file_path: str) -> str:
-    with open(file_path, "r", encoding="utf-8") as file:
-        file_content = file.read()
-    return file_content
-
-
-def generate_response_gemini(prompt: str) -> str:
-
-    system_prompt = read_file_content("./static/system_prompt.txt")
+    system_prompt = read_file_content("./src/static/system_prompt.txt")
 
     client = genai.Client(
         api_key=os.environ.get("GEMINI_API_KEY"),
     )
-
-    animal_adoption_file = f'animal info for adoption: {read_file_content("./static/animal_info.json")}\n\n'
 
     model = "gemini-2.5-flash-preview-04-17"
     contents = [
@@ -49,23 +38,29 @@ def generate_response_gemini(prompt: str) -> str:
             ],
         ),
     ]
+    tools = [get_awaiting_adoption_pet_info]
+
     generate_content_config = types.GenerateContentConfig(
         temperature=0,
+        thinking_config=types.ThinkingConfig(
+            thinking_budget=1000,
+        ),
         response_mime_type="text/plain",
         system_instruction=[
-            # TODO: better usage method of `animal_adoption_file`
-            types.Part.from_text(text=animal_adoption_file),
             types.Part.from_text(text=system_prompt),
         ],
+        tools=tools,
     )
 
-    generate_content = client.models.generate_content(
+    for chunk in client.models.generate_content_stream(
         model=model,
         contents=contents,
         config=generate_content_config,
-    )
+    ):
+        # print(f"{chunk.text=}")
+        # print(f"{chunk.automatic_function_calling_history=}")
 
-    return generate_content.text
+        yield chunk.text
 
 
 def chat_bot():
@@ -102,10 +97,12 @@ def chat_bot():
         st_c_chat.chat_message("user", avatar=user_image).write(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
 
-        response = generate_response_gemini(prompt)
-        # response = f"You type: {prompt}"
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st_c_chat.chat_message("assistant").write_stream(stream_data(response))
+        full_response = st_c_chat.chat_message("assistant").write_stream(
+            gemini_response_stream(prompt)
+        )
+        st.session_state.messages.append(
+            {"role": "assistant", "content": full_response}
+        )
 
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
         chat(prompt)
