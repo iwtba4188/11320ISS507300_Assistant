@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Generator
 
 import streamlit as st
 
@@ -17,17 +18,18 @@ user_image = "https://www.w3schools.com/howto/img_avatar.png"
 
 
 def page_init() -> None:
-    # Show title and description.
     st.title(i18n.get_message("pet.chat.doc_title").format(user_name=user_name))
 
 
-def gemini_response_stream(prompt: str):
+def str_stream(text: str) -> Generator[str, None, None]:
+    """Yield each character in the string with a delay."""
+    for char in text:
+        yield char
+        time.sleep(0.005)
 
+
+def gen_gemini_configs(prompt: str) -> dict:
     system_prompt = read_file_content("./src/static/system_prompt.txt")
-
-    client = genai.Client(
-        api_key=os.environ.get("GEMINI_API_KEY"),
-    )
 
     model = "gemini-2.5-flash-preview-04-17"
     contents = [
@@ -42,25 +44,86 @@ def gemini_response_stream(prompt: str):
 
     generate_content_config = types.GenerateContentConfig(
         temperature=0,
-        thinking_config=types.ThinkingConfig(
-            thinking_budget=1000,
-        ),
+        # thinking_config=types.ThinkingConfig(
+        #     include_thoughts=True,
+        #     thinking_budget=250,
+        # ),
         response_mime_type="text/plain",
         system_instruction=[
             types.Part.from_text(text=system_prompt),
         ],
         tools=tools,
+        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
     )
 
-    for chunk in client.models.generate_content_stream(
-        model=model,
-        contents=contents,
-        config=generate_content_config,
-    ):
-        # print(f"{chunk.text=}")
-        # print(f"{chunk.automatic_function_calling_history=}")
+    return {
+        "model": model,
+        "contents": contents,
+        "config": generate_content_config,
+    }
 
-        yield chunk.text
+
+def gemini_function_calling(
+    st_c_chat,
+    gemini_configs: dict,
+    function_calls: list[types.FunctionCall],
+):
+    """Handle function calling and response streaming."""
+
+    for tool_call in function_calls:
+        with (
+            st_c_chat,
+            st.spinner(f"Calling {tool_call.name}...", show_time=True),
+        ):
+            time.sleep(1)
+            if tool_call.name == "get_awaiting_adoption_pet_info":
+                result = get_awaiting_adoption_pet_info()
+
+            function_response_part = types.Part.from_function_response(
+                name=tool_call.name,
+                response={"result": result},
+            )
+            gemini_configs["contents"].append(
+                types.Content(role="model", parts=[types.Part(function_call=tool_call)])
+            )
+            gemini_configs["contents"].append(
+                types.Content(role="user", parts=[function_response_part])
+            )
+
+        yield from str_stream(
+            f"\n:green-badge[:material/check: Success calling function `{tool_call.name}`!]\n\n"
+        )
+
+    yield from str_stream(
+        f"\n:blue-badge[:material/psychology: Think again using all results.]\n\n"
+    )
+
+    yield from gemini_response_stream(st_c_chat, gemini_configs)
+
+
+def gemini_response_stream(st_c_chat, gemini_configs: dict):
+
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+
+    function_calls = []
+    this_response = ""
+
+    for chunk in client.models.generate_content_stream(**gemini_configs):
+        print(f"{chunk.text=}")
+        if chunk.text is not None:
+            this_response += chunk.text
+            yield from str_stream(chunk.text)
+        elif chunk.function_calls:
+            function_calls.extend(chunk.function_calls)
+
+    gemini_configs["contents"].append(
+        types.Content(role="model", parts=[types.Part.from_text(text=this_response)])
+    )
+
+    if function_calls:
+        yield from gemini_function_calling(st_c_chat, gemini_configs, function_calls)
+
+
 
 
 def chat_bot():
@@ -69,40 +132,32 @@ def chat_bot():
     st_c_chat = st.container(border=True)
 
     # Show chat history in this session
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-    else:
-        for msg in st.session_state.messages:
-            if msg["role"] == "user":
-                if user_image:
-                    st_c_chat.chat_message(msg["role"], avatar=user_image).markdown(
-                        (msg["content"])
-                    )
-                else:
-                    st_c_chat.chat_message(msg["role"]).markdown((msg["content"]))
-            elif msg["role"] == "assistant":
-                st_c_chat.chat_message(msg["role"]).markdown((msg["content"]))
-            else:
-                try:
-                    image_tmp = msg.get("image")
-                    if image_tmp:
-                        st_c_chat.chat_message(msg["role"], avatar=image_tmp).markdown(
-                            (msg["content"])
-                        )
-                except:
-                    st_c_chat.chat_message(msg["role"]).markdown((msg["content"]))
+    if "history" not in st.session_state:
+        st.session_state.history = []
+    histories = st.session_state.get("history", [])
+    for history in histories:
+        print(history)
+        avatar = user_image if history["role"] == "user" else None
+        with st_c_chat.chat_message(history["role"], avatar=avatar):
+            st.markdown((history["content"]))
 
-    # Chat function section (timing included inside function)
     def chat(prompt: str):
         st_c_chat.chat_message("user", avatar=user_image).write(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.history.append({"role": "user", "content": prompt})
 
+        gemini_configs = gen_gemini_configs(prompt)
         full_response = st_c_chat.chat_message("assistant").write_stream(
-            gemini_response_stream(prompt)
+            gemini_response_stream(st_c_chat, gemini_configs)
         )
-        st.session_state.messages.append(
-            {"role": "assistant", "content": full_response}
-        )
+
+        if isinstance(full_response, str):
+            full_response = [full_response]
+
+        # Check if the response is a list (for function calls)
+        for response in full_response:
+            st.session_state.history.append({"role": "assistant", "content": response})
+
+        print(full_response)
 
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
         chat(prompt)
