@@ -1,0 +1,62 @@
+{
+    "menu_items.about": {
+        "message": "This is a demo of a pet information chatbot. You can ask it about pet-related information or use the pet adoption matching service.",
+        "description": "About message of the page."
+    },
+    "sidebar.pet.section_label": {
+        "message": "Pet Consultant",
+        "description": "Label of the pet consultant section"
+    },
+    "sidebar.pet.chat.page_label": {
+        "message": "Start chatting",
+        "description": "Label of the pet consultant page"
+    },
+    "sidebar.week10.section_label": {
+        "message": "Week 10: Word2Vec Visualization",
+        "description": "Label of the week 10 section"
+    },
+    "sidebar.week10.2d.page_label": {
+        "message": "2D Visualization",
+        "description": "Label of the week 10 Q1-1 2D"
+    },
+    "sidebar.week10.3d.page_label": {
+        "message": "3D Visualization",
+        "description": "Label of the week 10 Q1-1 3D"
+    },
+    "sidebar.week10.skip_gram.page_label": {
+        "message": "SKIP-GRAM Training",
+        "description": "Label of the week 10 Q2 SKIP-GRAM"
+    },
+    "sidebar.week10.cbow.page_label": {
+        "message": "CBOW Training",
+        "description": "Label of the week 10 Q3 CBOW"
+    },
+    "pet.chat.input_placeholder": {
+        "message": "Please enter the question you want to ask~",
+        "description": "The placeholder of user input field in pet consultant page"
+    },
+    "pet.chat.page_title": {
+        "message": "Pet Consultant - Your Best Pet Assitant",
+        "description": "The page title in the title bar of pet consultant page"
+    },
+    "pet.chat.doc_title": {
+        "message": "💬 {user_name}'s Chatbot",
+        "description": "The page title in pet consultant page"
+    },
+    "week10.2d.page_title": {
+        "message": "Word2Vec 2D Visualization",
+        "description": "The page title in the title bar of week 10 Q1-1 2D"
+    },
+    "week10.3d.page_title": {
+        "message": "Word2Vec 3D Visualization",
+        "description": "The page title in the title bar of week 10 Q1-1 3D"
+    },
+    "week10.skip_gram.page_title": {
+        "message": "Word2Vec SKIP-GRAM Training",
+        "description": "The page title in the title bar of week 10 Q2 SKIP-GRAM"
+    },
+    "week10.cbow.page_title": {
+        "message": "Word2Vec CBOW Training",
+        "description": "The page title in the title bar of week 10 Q3 CBOW"
+    }
+}
