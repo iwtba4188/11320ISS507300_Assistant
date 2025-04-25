@@ -1,14 +1,21 @@
-import streamlit as st
 import os
-from google import genai
-from google.genai import types
-
-# from openai import OpenAI
 import time
 
-placeholderstr = "Please input your command"
+import streamlit as st
+
+from google import genai
+from google.genai import types
+from utils.i18n import i18n
+
+
+input_field_placeholder = i18n.get_message("pet.chat.input_placeholder")
 user_name = "Shihtl"
 user_image = "https://www.w3schools.com/howto/img_avatar.png"
+
+
+def page_init() -> None:
+    # Show title and description.
+    st.title(i18n.get_message("pet.chat.doc_title").format(user_name=user_name))
 
 
 def stream_data(stream_str):
@@ -61,36 +68,12 @@ def generate_response_gemini(prompt: str) -> str:
     return generate_content.text
 
 
-def main():
-    st.set_page_config(
-        page_title="Assistant - The Residemy Agent",
-        layout="wide",
-        initial_sidebar_state="auto",
-        menu_items={
-            "Get Help": "https://streamlit.io/",
-            "Report a bug": "https://github.com/iwtba4188/11320ISS507300_Assistant",
-            "About": "This is a demo chatbot about your pets.",
-        },
-        page_icon="img/favicon.ico",
-    )
+def chat_bot():
 
-    # Show title and description.
-    st.title(f"💬 {user_name}'s Chatbot")
-
-    with st.sidebar:
-        selected_lang = st.selectbox("Language", ["English", "繁體中文"], index=1)
-        if "lang_setting" in st.session_state:
-            lang_setting = st.session_state["lang_setting"]
-        else:
-            lang_setting = selected_lang
-            st.session_state["lang_setting"] = lang_setting
-
-        st_c_1 = st.container(border=True)
-        with st_c_1:
-            st.image("https://www.w3schools.com/howto/img_avatar.png")
-
+    # Chat section container
     st_c_chat = st.container(border=True)
 
+    # Show chat history in this session
     if "messages" not in st.session_state:
         st.session_state.messages = []
     else:
@@ -124,9 +107,10 @@ def main():
         st.session_state.messages.append({"role": "assistant", "content": response})
         st_c_chat.chat_message("assistant").write_stream(stream_data(response))
 
-    if prompt := st.chat_input(placeholder=placeholderstr, key="chat_bot"):
+    if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
         chat(prompt)
 
 
 if __name__ == "__main__":
-    main()
+    page_init()
+    chat_bot()
