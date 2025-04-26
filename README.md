@@ -27,5 +27,5 @@ A simple Streamlit app for pet consultancy and adoption matching that shows how 
 3. Run the app
 
    ```sh
-   $ streamlit run streamlit_app.py
+   $ streamlit run ./src/streamlit_app.py
    ```
