@@ -1,5 +1,4 @@
 import streamlit as st
-from bidict import bidict
 
 from utils.i18n import i18n
 
@@ -93,7 +92,7 @@ def setup_pages() -> None:
     pg.run()
 
 
-def lang_code_text_conversion(lang: str) -> str:
+def lang_code_2_text(lang: str) -> str:
     """
     Convert a language code to its corresponding text representation.
 
@@ -103,35 +102,25 @@ def lang_code_text_conversion(lang: str) -> str:
     Returns:
         str: The corresponding text representation of the language code
     """
-    lang_code_text = bidict(
-        {
-            "default": "Default",
-            "en": "English",
-            "zh-TW": "繁體中文",
-            "zh-CN": "简体中文",
-        }
-    )
-    return lang_code_text.get(lang) or lang_code_text.inverse.get(lang)
+    lang_code_text = {
+        "default": "Default",
+        "en": "English",
+        "zh-TW": "繁體中文",
+        "zh-CN": "简体中文",
+    }
+
+    return lang_code_text.get(lang, "Unknown")
 
 
 def setup_lang() -> None:
     """
     Set the application language based on the user selection in the sidebar.
 
-    Reads the selected language from the session state and configures
-    the i18n module accordingly.
-
     Returns:
         None
     """
-    # TODO: refector this mechanism to simplify the default language pipeline
-    selected_lang_text = st.session_state.get("selected_lang_text", "Default")
-    if selected_lang_text == "Default":
-        i18n.set_to_default_lang()
-
-    lang_setting = lang_code_text_conversion(selected_lang_text)
-
-    i18n.set_lang(lang_setting)
+    selected_lang = st.session_state.get("selected_lang", "default")
+    i18n.set_lang(selected_lang)
 
 
 def setup_sidebar() -> None:
@@ -144,16 +133,16 @@ def setup_sidebar() -> None:
     Returns:
         None
     """
-    lang_options = ["Default", "English", "繁體中文", "简体中文"]
-    now_selected_lang_text = st.session_state.get("selected_lang_text", "Default")
+    lang_options = ["default", "en", "zh-TW", "zh-CN"]
 
     with st.sidebar:
         st.selectbox(
             "Language",
             lang_options,
-            index=lang_options.index(now_selected_lang_text),
+            index=0,
+            format_func=lang_code_2_text,
             on_change=setup_lang,
-            key="selected_lang_text",
+            key="selected_lang",
         )
 
 
