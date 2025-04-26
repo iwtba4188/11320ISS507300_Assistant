@@ -108,6 +108,8 @@ def setup_lang() -> None:
         lang_setting = "en"
     elif selected_lang == "繁體中文":
         lang_setting = "zh-TW"
+    elif selected_lang == "简体中文":
+        lang_setting = "zh-CN"
     else:
         lang_setting = i18n.get_default_lang()
 
@@ -127,7 +129,7 @@ def setup_sidebar() -> None:
     with st.sidebar:
         st.selectbox(
             "Language",
-            ["Browser Language", "English", "繁體中文"],
+            ["Browser Language", "English", "繁體中文", "简体中文"],
             index=0,
             on_change=setup_lang,
             key="selected_lang",
