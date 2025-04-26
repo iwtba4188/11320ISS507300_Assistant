@@ -3,33 +3,31 @@ import streamlit as st
 
 class I18n:
     """
-    A class to handle internationalization (i18n) for a Streamlit application.
+    A class to handle internationalization (i18n) for application.
 
     It loads translation files from a specified folder and provides methods to
     get translated messages.
 
-    Attributes:
-        lang (str): The current language code.
-        default_lang (str): The default language code. If is `"streamlit"`, it will be set to the current locale.
-        i18n_folder_path (str): The path to the folder containing translation files.
+    Parameters:
+        lang (str): The initial language code to set. Defaults to None.
+        default_lang (str): The default language code to fall back on. Defaults to "en".
+        use_streamlit_lang (bool): Whether to use the Streamlit locale for the initial language. Defaults to True.
+        i18n_folder_path (str): The path to the folder containing translation files. Defaults to "./_locales".
     """
 
     def __init__(
         self,
         lang: str = None,
-        default_lang: str = "streamlit",
+        default_lang: str = "en",
+        use_streamlit_lang: bool = True,
         i18n_folder_path: str = "./_locales",
     ) -> None:
         self._i18n_folder_path = i18n_folder_path
         self._translations = self._build_translations()
         self._validate_translations()
 
-        if default_lang == "streamlit":
-            self._default_lang = st.context.locale
-        else:
-            self._default_lang = default_lang
-        self._lang = lang if lang else default_lang
-        self.set_lang(self._lang)
+        self.set_lang(st.context.locale if use_streamlit_lang else lang)
+        self.set_default_lang(default_lang)
 
         # TODO: Using logging instead of print statements
         print(f"Current language: {self._lang}")
@@ -79,31 +77,17 @@ class I18n:
 
         return translations
 
-    def set_lang(self, language: str) -> None:
+    def is_valid_lang(self, lang: str) -> bool:
         """
-        Set the current language for translations.
-
-        If the specified language is not available, falls back to the default language.
+        Check if the given language code is valid.
 
         Arguments:
-            language (str): Language code to set as current language
+            lang (str): Language code to check
 
         Returns:
-            None
+            bool: True if the language code is valid, False otherwise
         """
-        if language in self._translations.keys():
-            self._lang = language
-        else:
-            self._lang = self._default_lang
-
-    def set_to_default_lang(self) -> None:
-        """
-        Reset the current language to the default language.
-
-        Returns:
-            None
-        """
-        self._lang = self._default_lang
+        return lang in self.get_valid_languages()
 
     def get_default_lang(self) -> str:
         """
@@ -122,6 +106,67 @@ class I18n:
             list[str]: List of available language codes
         """
         return list(self._translations.keys())
+
+    def set_lang(self, lang: str) -> None:
+        """
+        Set the current language for translations.
+
+        If the specified language is not available, falls back to the default language.
+
+        Arguments:
+            lang (str): Language code to set as current language
+
+        Returns:
+            None
+        """
+        self._lang = self.match_lang(lang)
+        if self._lang is None:
+            print(f"Language '{lang}' not found. Falling back to default language.")
+            self._lang = self._default_lang
+
+    def set_default_lang(self, lang: str) -> None:
+        """
+        Set the default language for translations.
+
+        Arguments:
+            lang (str): Language code to set as default language
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the specified language is not valid
+        """
+        if not self.is_valid_lang(lang):
+            raise ValueError(f"Invalid default language: {lang}")
+        self._default_lang = lang
+
+    def set_to_default_lang(self) -> None:
+        """
+        Reset the current language to the default language.
+
+        Returns:
+            None
+        """
+        self.set_lang(self._default_lang)
+
+    def match_lang(self, lang: str) -> str | None:
+        """
+        Match the given language code to a valid language code.
+
+        This method checks if the provided language code starts with any of the valid language codes
+        and returns the most specific match found.
+
+        Arguments:
+            lang (str): Language code to match
+
+        Returns:
+            str: The most specific valid language code that matches the input
+        """
+        valid_langs = self.get_valid_languages()
+        valid_langs = list(filter(lambda x: lang.startswith(x), valid_langs))
+
+        return sorted(valid_langs, reverse=True)[0] if valid_langs else None
 
     def get_message(self, key: str) -> str:
         """
@@ -145,7 +190,9 @@ class I18n:
             try:
                 return self._translations[self._default_lang][key]["message"]
             except KeyError:
-                raise KeyError(f"Missing translation for key: {key}")
+                raise KeyError(
+                    f"Missing translation for key: {key} (lang: {self._lang}, default_lang: {self._default_lang})"
+                )
 
 
 if __name__ == "__main__":
