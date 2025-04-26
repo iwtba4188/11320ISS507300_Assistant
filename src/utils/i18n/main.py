@@ -62,8 +62,8 @@ class I18n:
         Returns:
             dict: Dictionary of translations with language codes as keys
         """
-        import os
         import json
+        import os
 
         translations = {}
         for root, dirs, files in os.walk(self._i18n_folder_path):
