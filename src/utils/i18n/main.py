@@ -26,6 +26,8 @@ class I18n:
         self._translations = self._build_translations()
         self._validate_translations()
 
+        self._lang = ""
+        self._default_lang = ""
         self.set_lang(st.context.locale if use_streamlit_lang else lang)
         self.set_default_lang(default_lang)
 
