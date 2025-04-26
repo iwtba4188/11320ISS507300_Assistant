@@ -280,17 +280,21 @@ def chat(prompt: str):
 
 def chat_bot():
     """
-    Display the chat input field and trigger chat() when the user submits a message.
+    Render the chat interface and process user input in Streamlit.
 
-    Intended to be used within a Streamlit context.
+    Creates a bordered container to display chat history and a chat input field.
+    When the user submits a message, calls chat() inside the same container to
+    render and stream the assistant's response.
     """
+    chat_container = st.container(border=True)
+    with chat_container:
+        display_chat_history()
+
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
-        chat(prompt)
+        with chat_container:
+            chat(prompt)
 
 
 if __name__ == "__main__":
     page_init()
-
-    with st.container(border=True):
-        display_chat_history()
-        chat_bot()
+    chat_bot()
