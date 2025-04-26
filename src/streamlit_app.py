@@ -1,4 +1,5 @@
 import streamlit as st
+from bidict import bidict
 
 from utils.i18n import i18n
 
@@ -92,6 +93,27 @@ def setup_pages() -> None:
     pg.run()
 
 
+def lang_code_text_conversion(lang: str) -> str:
+    """
+    Convert a language code to its corresponding text representation.
+
+    Arguments:
+        lang (str): The language code to convert
+
+    Returns:
+        str: The corresponding text representation of the language code
+    """
+    lang_code_text = bidict(
+        {
+            "default": "Default",
+            "en": "English",
+            "zh-TW": "繁體中文",
+            "zh-CN": "简体中文",
+        }
+    )
+    return lang_code_text.get(lang) or lang_code_text.inverse.get(lang)
+
+
 def setup_lang() -> None:
     """
     Set the application language based on the user selection in the sidebar.
@@ -102,16 +124,12 @@ def setup_lang() -> None:
     Returns:
         None
     """
-    selected_lang = st.session_state["selected_lang"]
+    # TODO: refector this mechanism to simplify the default language pipeline
+    selected_lang_text = st.session_state.get("selected_lang_text", "Default")
+    if selected_lang_text == "Default":
+        i18n.set_to_default_lang()
 
-    if selected_lang == "English":
-        lang_setting = "en"
-    elif selected_lang == "繁體中文":
-        lang_setting = "zh-TW"
-    elif selected_lang == "简体中文":
-        lang_setting = "zh-CN"
-    else:
-        lang_setting = i18n.get_default_lang()
+    lang_setting = lang_code_text_conversion(selected_lang_text)
 
     i18n.set_lang(lang_setting)
 
@@ -126,16 +144,20 @@ def setup_sidebar() -> None:
     Returns:
         None
     """
+    lang_options = ["Default", "English", "繁體中文", "简体中文"]
+    now_selected_lang_text = st.session_state.get("selected_lang_text", "Default")
+
     with st.sidebar:
         st.selectbox(
             "Language",
-            ["Browser Language", "English", "繁體中文", "简体中文"],
-            index=0,
+            lang_options,
+            index=lang_options.index(now_selected_lang_text),
             on_change=setup_lang,
-            key="selected_lang",
+            key="selected_lang_text",
         )
 
 
 if __name__ == "__main__":
+    setup_lang()
     setup_pages()
     setup_sidebar()

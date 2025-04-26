@@ -40,7 +40,7 @@
         "description": "The page title in the title bar of pet consultant page"
     },
     "pet.chat.doc_title": {
-        "message": "💬 {user_name} 的 Chatbot",
+        "message": "💬 {user_name} 的聊天機器人",
         "description": "The page title in pet consultant page"
     },
     "pet.chat.spinner.func_call_text": {
