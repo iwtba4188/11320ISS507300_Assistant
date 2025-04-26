@@ -1,16 +1,15 @@
 import os
 import time
+from collections import deque
 from typing import Generator
 
 import streamlit as st
-
 from google import genai
 from google.genai import types
 
 from utils.function_call import get_awaiting_adoption_pet_info
-from utils.helpers import read_file_content, success_badge, error_badge, info_badge
+from utils.helpers import error_badge, info_badge, read_file_content, success_badge
 from utils.i18n import i18n
-
 
 input_field_placeholder = i18n.get_message("pet.chat.input_placeholder")
 user_name = "Shihtl"
@@ -19,50 +18,54 @@ user_image = "https://www.w3schools.com/howto/img_avatar.png"
 
 def page_init() -> None:
     """
-    Initialize the page by setting the title with the user's name.
-
-    Returns:
-        None
+    Set the Streamlit page title using the localized message and configured user name.
     """
     st.title(i18n.get_message("pet.chat.doc_title").format(user_name=user_name))
 
 
 def str_stream(text: str) -> Generator:
     """
-    Yield each character in the string with a small delay to create a typing effect.
+    Stream the provided text by yielding one character at a time with a brief delay
+    to simulate typing.
 
     Arguments:
-        text (str): The text to stream character by character
+        text (str): Text to stream character by character
 
-    Returns:
-        Generator: A generator yielding individual characters
+    Yields:
+        str: Individual characters of the text
     """
     for char in text:
         yield char
         time.sleep(0.005)
 
 
-def gen_gemini_configs(prompt: str) -> dict:
+def add_content(content: types.Content) -> None:
     """
-    Generate configuration dictionary for Gemini API call.
+    Append a content item to st.session_state["contents"], initializing it as a deque of max
+    length 20 if needed.
 
     Arguments:
-        prompt (str): The user's input prompt to send to the model
+        content (types.Content): Content item to add to the session state
+    """
+    if "contents" not in st.session_state:
+        st.session_state["contents"] = deque(maxlen=20)
+    st.session_state["contents"].append(content)
+
+
+def init_gemini_api_config() -> dict:
+    """
+    Build and return the initial Gemini API configuration with model, generation settings,
+    and enabled tools.
 
     Returns:
-        dict: Configuration dictionary containing model, contents, and config settings for the Gemini API
+        dict: {
+            "model": (str) Gemini model name,
+            "config": (GenerateContentConfig) generation parameters
+        }
     """
     system_prompt = read_file_content("./src/static/system_prompt.txt")
 
     model = "gemini-2.5-flash-preview-04-17"
-    contents = [
-        types.Content(
-            role="user",
-            parts=[
-                types.Part.from_text(text=prompt),
-            ],
-        ),
-    ]
     tools = [get_awaiting_adoption_pet_info]
 
     generate_content_config = types.GenerateContentConfig(
@@ -81,118 +84,150 @@ def gen_gemini_configs(prompt: str) -> dict:
 
     return {
         "model": model,
-        "contents": contents,
         "config": generate_content_config,
     }
 
 
-def function_calling(func_call_name: str) -> dict:
+def gemini_api_config() -> dict:
     """
-    Call the specified function and handle any exceptions.
-
-    Arguments:
-        func_call_name (str): The name of the function to call
+    Retrieve or initialize the base Gemini API config, update it with current conversation
+    contents, and return it.
 
     Returns:
-        dict: A dictionary containing the status and result of the function call
+        dict: Configuration including model, config parameters, and "contents" list
     """
+    if "gemini_configs" not in st.session_state:
+        gemini_configs: dict = init_gemini_api_config()
+        st.session_state["gemini_configs"] = gemini_configs
+    else:
+        gemini_configs: dict = st.session_state["gemini_configs"]
 
-    status = ""
+    gemini_configs["contents"] = list(st.session_state["contents"])
+    return gemini_configs
+
+
+def execute_func_call(func_call: types.FunctionCall) -> dict:
+    """
+    Execute the given function call, capture success or error, and return status
+    and result.
+
+    Arguments:
+        func_call (types.FunctionCall): Function call object to execute
+
+    Returns:
+        dict: {
+            "func_call": FunctionCall,
+            "status": "success" or "error",
+            "result": Function result or error message
+        }
+    """
+    func_call_result = {
+        "func_call": func_call,
+        "status": "unknown",
+        "result": "unknown",
+    }
 
     try:
-        if func_call_name == "get_awaiting_adoption_pet_info":
-            result = get_awaiting_adoption_pet_info()
+        if func_call.name == "get_awaiting_adoption_pet_info":
+            func_call_result["status"] = "success"
+            func_call_result["result"] = get_awaiting_adoption_pet_info()
         else:
-            raise ValueError(f"Unknown function call: {func_call_name}")
+            raise ValueError(f"Unknown function call: {func_call.name}")
     except Exception as e:
-        status = "error"
-        result = str(e)
-    else:
-        status = "success"
+        func_call_result["status"] = "error"
+        func_call_result["result"] = str(e)
 
-    return {
-        "status": status,
-        "result": result,
-    }
+    return func_call_result
+
+
+def add_func_call_result(func_call_result: dict) -> None:
+    """
+    Append model and user content entries for the executed function call and its
+    response to session_state contents.
+
+    Arguments:
+        func_call_result (dict): Contains "func_call", "status", and "result".
+    """
+    function_response_part = types.Part.from_function_response(
+        name=func_call_result["func_call"].name,
+        response={"result": func_call_result["result"]},
+    )
+    add_content(
+        types.Content(
+            role="model",
+            parts=[types.Part(function_call=func_call_result["func_call"])],
+        )
+    )
+    add_content(types.Content(role="user", parts=[function_response_part]))
+
+
+def func_call_result_badge_stream(func_call_result: dict) -> Generator:
+    """
+    Stream a badge indicating function call success or error, character by
+    character.
+
+    Arguments:
+        func_call_result (dict): Contains "status" and "func_call" info.
+
+    Yields:
+        str: Characters forming the status badge message.
+    """
+    func_call_msg_i18n_key = f"pet.chat.badge.func_call_{func_call_result['status']}"
+    func_call_msg = i18n.get_message(func_call_msg_i18n_key).format(
+        func_name=func_call_result["func_call"].name
+    )
+
+    if func_call_result["status"] == "error":
+        yield from str_stream(error_badge(func_call_msg))
+    else:
+        yield from str_stream(success_badge(func_call_msg))
 
 
 def gemini_function_calling(
-    st_c_chat,
-    gemini_configs: dict,
     function_calls: list[types.FunctionCall],
 ) -> Generator:
     """
-    Handle function calling and response streaming for Gemini API.
+    Process a list of function calls: execute each, stream its badge, then prompt for next
+    actions and continue with model response.
 
     Arguments:
-        st_c_chat: Streamlit chat container to display messages
-        gemini_configs (dict): Configuration dictionary for Gemini API
-        function_calls (list[types.FunctionCall]): List of function calls to process
+        function_calls (list[types.FunctionCall]): FunctionCall objects to process.
 
-    Returns:
-        Generator: Yields response stream text
+    Yields:
+        str: Characters of badge messages and subsequent model response.
     """
-
     for func_call in function_calls:
         spinner_func_call_text = i18n.get_message(
             "pet.chat.spinner.func_call_text"
         ).format(func_call_name=func_call.name)
 
-        with (
-            st_c_chat,
-            st.spinner(spinner_func_call_text, show_time=True),
-        ):
-            func_call_result = function_calling(func_call.name)
-
-            function_response_part = types.Part.from_function_response(
-                name=func_call.name,
-                response={"result": func_call_result["result"]},
-            )
-            gemini_configs["contents"].append(
-                types.Content(role="model", parts=[types.Part(function_call=func_call)])
-            )
-            gemini_configs["contents"].append(
-                types.Content(role="user", parts=[function_response_part])
-            )
-
+        with st.spinner(spinner_func_call_text, show_time=True):
+            func_call_result = execute_func_call(func_call)
+            add_func_call_result(func_call_result)
             time.sleep(1)
 
-        func_call_msg_i18n_key = (
-            f"pet.chat.badge.func_call_{func_call_result['status']}"
-        )
-        func_call_msg = i18n.get_message(func_call_msg_i18n_key).format(
-            func_name=func_call.name
-        )
-
-        if func_call_result["status"] == "error":
-            yield from str_stream(error_badge(func_call_msg))
-        else:
-            yield from str_stream(success_badge(func_call_msg))
+        yield from func_call_result_badge_stream(func_call_result)
 
     think_again_msg = i18n.get_message("pet.chat.badge.think_again")
     yield from str_stream(info_badge(think_again_msg))
 
-    yield from gemini_response_stream(st_c_chat, gemini_configs)
+    yield from gemini_response_stream()
 
 
-def gemini_response_stream(st_c_chat, gemini_configs: dict) -> Generator:
+def gemini_response_stream() -> Generator:
     """
-    Stream responses from the Gemini model and handle any function calls.
+    Invoke the Gemini client to stream text chunks from the model, yield them, and
+    record the full response and handle any function calls.
 
-    Arguments:
-        st_c_chat: Streamlit chat container to display messages
-        gemini_configs (dict): Configuration dictionary for Gemini API
-
-    Returns:
-        Generator: Yields response stream text and processes any function calls
+    Yields:
+        str: Characters from the model's response and streams function call handling if needed.
     """
-
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
     function_calls = []
     this_response = ""
 
-    for chunk in client.models.generate_content_stream(**gemini_configs):
+    for chunk in client.models.generate_content_stream(**gemini_api_config()):
         print(f"{chunk.text=}")
         if chunk.text is not None:
             this_response += chunk.text
@@ -200,69 +235,62 @@ def gemini_response_stream(st_c_chat, gemini_configs: dict) -> Generator:
         elif chunk.function_calls:
             function_calls.extend(chunk.function_calls)
 
-    gemini_configs["contents"].append(
+    add_content(
         types.Content(role="model", parts=[types.Part.from_text(text=this_response)])
     )
 
     if function_calls:
-        yield from gemini_function_calling(st_c_chat, gemini_configs, function_calls)
+        yield from gemini_function_calling(function_calls)
 
 
-def chat_bot():
+def display_chat_history() -> None:
     """
-    Initialize and manage the chat interface with the Gemini model.
-
-    This function sets up the chat container, displays chat history,
-    and defines an inner function to handle user inputs and model responses.
-
-    Returns:
-        None
+    Render past user and assistant messages from
+    st.session_state.history using Streamlit chat messages.
     """
-
-    # Chat section container
-    st_c_chat = st.container(border=True)
-
-    # Show chat history in this session
     if "history" not in st.session_state:
         st.session_state.history = []
     histories = st.session_state.get("history", [])
     for history in histories:
-        print(history)
         avatar = user_image if history["role"] == "user" else None
-        with st_c_chat.chat_message(history["role"], avatar=avatar):
-            st.markdown((history["content"]))
+        st.chat_message(history["role"], avatar=avatar).markdown((history["content"]))
 
-    def chat(prompt: str):
-        """
-        Process user input and generate model response.
 
-        Arguments:
-            prompt (str): User input text to send to the model
+def chat(prompt: str):
+    """
+    Post the user's prompt, invoke response streaming, and append messages to
+    session state history.
 
-        Returns:
-            None
-        """
-        st_c_chat.chat_message("user", avatar=user_image).write(prompt)
-        st.session_state.history.append({"role": "user", "content": prompt})
+    Arguments:
+        prompt (str): Text entered by the user
+    """
+    st.chat_message("user", avatar=user_image).write(prompt)
+    st.session_state.history.append({"role": "user", "content": prompt})
 
-        gemini_configs = gen_gemini_configs(prompt)
-        full_response = st_c_chat.chat_message("assistant").write_stream(
-            gemini_response_stream(st_c_chat, gemini_configs)
-        )
+    add_content(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
 
-        if isinstance(full_response, str):
-            full_response = [full_response]
+    full_response = st.chat_message("assistant").write_stream(gemini_response_stream())
 
-        # Check if the response is a list (for function calls)
-        for response in full_response:
-            st.session_state.history.append({"role": "assistant", "content": response})
+    if isinstance(full_response, str):
+        full_response = [full_response]
 
-        print(full_response)
+    for response in full_response:
+        st.session_state.history.append({"role": "assistant", "content": response})
 
+
+def chat_bot():
+    """
+    Display the chat input field and trigger chat() when the user submits a message.
+
+    Intended to be used within a Streamlit context.
+    """
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
         chat(prompt)
 
 
 if __name__ == "__main__":
     page_init()
-    chat_bot()
+
+    with st.container(border=True):
+        display_chat_history()
+        chat_bot()
