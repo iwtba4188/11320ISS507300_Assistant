@@ -47,6 +47,10 @@
     "message": "正在调用 {func_call_name}...",
     "description": "The loading text in pet consultant page"
   },
+  "pet.chat.spinner.gemini_response": {
+    "message": "正在等待 Gemini 响应...",
+    "description": "The loading text when waiting for Gemini response in pet consultant page"
+  },
   "pet.chat.badge.func_call_success": {
     "message": "成功调用函数 `{func_name}`！",
     "description": "The badge of function call success in pet consultant page"

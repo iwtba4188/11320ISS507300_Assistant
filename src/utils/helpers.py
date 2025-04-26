@@ -1,3 +1,7 @@
+import streamlit as st
+
+
+# [Files]
 def read_file_content(file_path: str) -> str:
     """
     Read and return the content of a text file.
@@ -13,6 +17,7 @@ def read_file_content(file_path: str) -> str:
     return file_content
 
 
+# [Badges]
 def info_badge(msg: str) -> str:
     """
     Generate an info badge message.
@@ -50,3 +55,26 @@ def error_badge(msg: str) -> str:
         str: The formatted error badge message
     """
     return f"\n:red-badge[:material/error: {msg}]\n\n"
+
+
+# [Streamlit Spinner]
+class st_spinner:
+    # ref: https://github.com/streamlit/streamlit/issues/6799#issuecomment-1578395288
+    def __init__(self, text="In progress...", show_time=False):
+        self.text = text
+        self.show_time = show_time
+        self._spinner = iter(self._start())  # This creates an infinite spinner
+        next(self._spinner)  #  This starts it
+
+    def _start(self):
+        with st.spinner(self.text, show_time=self.show_time):
+            yield
+
+    def end(self):  # This ends it
+        next(self._spinner, None)
+
+
+# # Usage
+# s = st_spinner()
+# time.sleep(5)
+# s.end()

@@ -8,7 +8,13 @@ from google import genai
 from google.genai import types
 
 from utils.function_call import get_awaiting_adoption_pet_info
-from utils.helpers import error_badge, info_badge, read_file_content, success_badge
+from utils.helpers import (
+    error_badge,
+    info_badge,
+    read_file_content,
+    st_spinner,
+    success_badge,
+)
 from utils.i18n import i18n
 
 input_field_placeholder = i18n.get_message("pet.chat.input_placeholder")
@@ -21,6 +27,14 @@ def page_init() -> None:
     Set the Streamlit page title using the localized message and configured user name.
     """
     st.title(i18n.get_message("pet.chat.doc_title").format(user_name=user_name))
+    st.markdown(
+        """<style>
+    div.stSpinner > div {
+        padding-left: 55px;
+    }
+</style>""",
+        unsafe_allow_html=True,
+    )
 
 
 def str_stream(text: str) -> Generator:
@@ -204,7 +218,7 @@ def gemini_function_calling(
         with st.spinner(spinner_func_call_text, show_time=True):
             func_call_result = execute_func_call(func_call)
             add_func_call_result(func_call_result)
-            time.sleep(1)
+            time.sleep(1)  # Simulate some delay for the spinner
 
         yield from func_call_result_badge_stream(func_call_result)
 
@@ -227,7 +241,12 @@ def gemini_response_stream() -> Generator:
     function_calls = []
     this_response = ""
 
+    gemini_response_spinner = st_spinner(
+        text=i18n.get_message("pet.chat.spinner.gemini_response"), show_time=True
+    )
+
     for chunk in client.models.generate_content_stream(**gemini_api_config()):
+        gemini_response_spinner.end()
         print(f"{chunk.text=}")
         if chunk.text is not None:
             this_response += chunk.text
