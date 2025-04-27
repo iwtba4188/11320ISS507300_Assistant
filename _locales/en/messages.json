@@ -3,6 +3,10 @@
         "message": "This is a demo of a pet information chatbot. You can ask it about pet-related information or use the pet adoption matching service.",
         "description": "About message of the page."
     },
+    "spinner.loading": {
+        "message": "Loading...",
+        "description": "Loading message of the page."
+    },
     "sidebar.pet.section_label": {
         "message": "Pet Consultant",
         "description": "Label of the pet consultant section"
@@ -31,12 +35,20 @@
         "message": "CBOW Training",
         "description": "Label of the week 10 Q3 CBOW"
     },
+    "df_input.col_name.selected": {
+        "message": "Selected to Train",
+        "description": "Column name for the data frame"
+    },
+    "df_input.col_name.sentence": {
+        "message": "Sentence",
+        "description": "Column name for the data frame"
+    },
     "pet.chat.input_placeholder": {
         "message": "Please enter the question you want to ask~",
         "description": "The placeholder of user input field in pet consultant page"
     },
     "pet.chat.page_title": {
-        "message": "Pet Consultant - Your Best Pet Assitant",
+        "message": "Pet Consultant - Your Best Pet Assistant",
         "description": "The page title in the title bar of pet consultant page"
     },
     "pet.chat.doc_title": {
@@ -63,13 +75,33 @@
         "message": "Think again using results from function calls.",
         "description": "The badge of information about thinking again in pet consultant page"
     },
+    "week10.no_sentences": {
+        "message": "No sentences selected for training.",
+        "description": "The warning message when no sentences are available for training."
+    },
     "week10.2d.page_title": {
         "message": "Word2Vec 2D Visualization",
         "description": "The page title in the title bar of week 10 Q1-1 2D"
     },
+    "week10.2d.doc_title": {
+        "message": "Visualize Word2Vec in 2D",
+        "description": "The page title of week 10 Q1-1 2D"
+    },
+    "week10.2d.fig_title": {
+        "message": "2D Visualization of Word Embedding",
+        "description": "The title of the figure for 2D visualization of word embeddings."
+    },
     "week10.3d.page_title": {
         "message": "Word2Vec 3D Visualization",
         "description": "The page title in the title bar of week 10 Q1-1 3D"
+    },
+    "week10.3d.doc_title": {
+        "message": "Visualize Word2Vec in 3D",
+        "description": "The page title of week 10 Q1-1 3D"
+    },
+    "week10.3d.fig_title": {
+        "message": "3D Visualization of Word Embedding",
+        "description": "The title of the figure for 3D visualization of word embeddings."
     },
     "week10.skip_gram.page_title": {
         "message": "Word2Vec SKIP-GRAM Training",

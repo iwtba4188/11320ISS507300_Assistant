@@ -1,5 +1,7 @@
 import streamlit as st
 
+from utils.i18n import i18n
+
 
 # [Files]
 def read_file_content(file_path: str) -> str:
@@ -60,7 +62,7 @@ def error_badge(msg: str) -> str:
 # [Streamlit Spinner]
 class st_spinner:
     # ref: https://github.com/streamlit/streamlit/issues/6799#issuecomment-1578395288
-    def __init__(self, text="In progress...", show_time=False):
+    def __init__(self, text=i18n("spinner.loading"), show_time=True):
         self.text = text
         self.show_time = show_time
         self._spinner = iter(self._start())  # This creates an infinite spinner
@@ -78,3 +80,28 @@ class st_spinner:
 # s = st_spinner()
 # time.sleep(5)
 # s.end()
+
+
+# [General]
+color_map = {
+    0: "blue",
+    1: "green",
+    2: "red",
+    3: "purple",
+    4: "orange",
+    5: "pink",
+    6: "brown",
+    7: "gray",
+    8: "cyan",
+    9: "magenta",
+    10: "lime",
+    11: "teal",
+    12: "navy",
+    13: "maroon",
+    14: "olive",
+    15: "coral",
+    16: "salmon",
+    17: "gold",
+    18: "khaki",
+    19: "plum",
+}

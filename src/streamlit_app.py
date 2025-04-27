@@ -1,6 +1,9 @@
+import pandas as pd
 import streamlit as st
 
 from utils.i18n import i18n
+
+pd.set_option("future.no_silent_downcasting", True)
 
 
 def sidebar_name_to_page_title(pg_title: str) -> str:
