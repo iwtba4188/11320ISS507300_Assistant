@@ -71,7 +71,7 @@ def show_results(subheader: str, model: Word2Vec, word: str) -> None:
             },
         )
     except KeyError:
-        st.warning(i18n("week10.no_keyword"))
+        st.warning(i18n("week10.not_keyword"))
 
 
 def train_and_show(df: pd.DataFrame) -> None:

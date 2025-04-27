@@ -36,7 +36,7 @@
         "description": "Label of the week 10 Q3 CBOW"
     },
     "df_input.col_name.selected": {
-        "message": "Selected to Train",
+        "message": "Select to Train",
         "description": "Column name for the data frame"
     },
     "df_input.col_name.sentence": {
@@ -79,9 +79,9 @@
         "message": "No sentences selected for training.",
         "description": "The warning message when no sentences are available for training."
     },
-    "week10.no_keyword": {
-        "message": "No keyword selected for training.",
-        "description": "The warning message when no keyword is available for training."
+    "week10.not_keyword": {
+        "message": "Not a keyword selected in trained model.",
+        "description": "The warning message when it's not a keyword in the trained model."
     },
     "week10.2d.page_title": {
         "message": "Word2Vec 2D Visualization",

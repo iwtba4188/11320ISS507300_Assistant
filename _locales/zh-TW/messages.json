@@ -78,5 +78,65 @@
     "week10.cbow.page_title": {
         "message": "Word2Vec CBOW 訓練",
         "description": "The page title in the title bar of week 10 Q3 CBOW"
+    },
+    "spinner.loading": {
+        "message": "載入中...",
+        "description": "Loading message of the page."
+    },
+    "df_input.col_name.selected": {
+        "message": "選擇進行訓練",
+        "description": "Column name for the data frame"
+    },
+    "df_input.col_name.sentence": {
+        "message": "句子",
+        "description": "Column name for the data frame"
+    },
+    "week10.no_sentences": {
+        "message": "未選擇任何句子進行訓練。",
+        "description": "The warning message when no sentences are available for training."
+    },
+    "week10.not_keyword": {
+        "message": "所選詞不是訓練模型中的關鍵詞。",
+        "description": "The warning message when no keyword is available for training."
+    },
+    "week10.2d.doc_title": {
+        "message": "在 2D 中視覺化 Word2Vec",
+        "description": "The page title of week 10 Q1-1 2D"
+    },
+    "week10.2d.fig_title": {
+        "message": "Word2Vec 的 2D 視覺化圖",
+        "description": "The title of the figure for 2D visualization of word embeddings."
+    },
+    "week10.3d.doc_title": {
+        "message": "在 3D 中視覺化 Word2Vec",
+        "description": "The page title of week 10 Q1-1 3D"
+    },
+    "week10.3d.fig_title": {
+        "message": "Word2Vec 的 3D 視覺化圖",
+        "description": "The title of the figure for 3D visualization of word embeddings."
+    },
+    "week10.skip_gram.doc_title": {
+        "message": "Word2Vec SKIP-GRAM 訓練",
+        "description": "The page title of week 10 Q2 SKIP-GRAM"
+    },
+    "week10.cbow.doc_title": {
+        "message": "Word2Vec CBOW 訓練",
+        "description": "The page title of week 10 Q3 CBOW"
+    },
+    "week10.original_model": {
+        "message": "原始模型",
+        "description": "The label of the original model subheader in week 10 Q2 & Q3"
+    },
+    "week10.remove_stopwords_model": {
+        "message": "移除停用詞",
+        "description": "The label of the remove stopwords model in week 10 Q2 & Q3"
+    },
+    "week10.most_similar_words": {
+        "message": "最相似的詞",
+        "description": "The label of the most similar words input field in week 10 Q2 & Q3"
+    },
+    "week10.most_similar_words.placeholder": {
+        "message": "請輸入您想查找相似詞的單字。",
+        "description": "The placeholder of the most similar words input field in week 10 Q2 & Q3"
     }
 }
