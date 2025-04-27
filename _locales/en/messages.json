@@ -79,6 +79,10 @@
         "message": "No sentences selected for training.",
         "description": "The warning message when no sentences are available for training."
     },
+    "week10.no_keyword": {
+        "message": "No keyword selected for training.",
+        "description": "The warning message when no keyword is available for training."
+    },
     "week10.2d.page_title": {
         "message": "Word2Vec 2D Visualization",
         "description": "The page title in the title bar of week 10 Q1-1 2D"
@@ -107,8 +111,32 @@
         "message": "Word2Vec SKIP-GRAM Training",
         "description": "The page title in the title bar of week 10 Q2 SKIP-GRAM"
     },
+    "week10.skip_gram.doc_title": {
+        "message": "Word2Vec SKIP-GRAM Training",
+        "description": "The page title of week 10 Q2 SKIP-GRAM"
+    },
+    "week10.cbow.doc_title": {
+        "message": "Word2Vec CBOW Training",
+        "description": "The page title of week 10 Q3 CBOW"
+    },
     "week10.cbow.page_title": {
         "message": "Word2Vec CBOW Training",
         "description": "The page title in the title bar of week 10 Q3 CBOW"
+    },
+    "week10.original_model": {
+        "message": "Original Model",
+        "description": "The label of the original model subheader in week 10 Q2 & Q3"
+    },
+    "week10.remove_stopwords_model": {
+        "message": "Remove stopwords",
+        "description": "The label of the remove stopwords model in week 10 Q2 & Q3"
+    },
+    "week10.most_similar_words": {
+        "message": "Most similar words",
+        "description": "The label of the most similar words input field in week 10 Q2 & Q3"
+    },
+    "week10.most_similar_words.placeholder": {
+        "message": "Please enter the word you want to find similar words for.",
+        "description": "The placeholder of the most similar words input field in week 10 Q2 & Q3"
     }
 }
