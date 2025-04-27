@@ -17,9 +17,8 @@ class I18n:
 
     def __init__(
         self,
-        lang: str = None,
+        lang: str,
         default_lang: str = "en",
-        use_streamlit_lang: bool = True,
         i18n_folder_path: str = "./_locales",
     ) -> None:
         self._i18n_folder_path = i18n_folder_path
@@ -28,7 +27,7 @@ class I18n:
 
         self._lang = ""
         self._default_lang = ""
-        self.set_lang(st.context.locale if use_streamlit_lang else lang)
+        self.set_lang(lang)
         self.set_default_lang(default_lang)
 
         # TODO: Using logging instead of print statements
@@ -89,9 +88,20 @@ class I18n:
         Returns:
             bool: True if the language code is valid, False otherwise
         """
-        return lang in self.get_valid_languages()
+        return self.match_lang(lang) is not None
 
-    def get_default_lang(self) -> str:
+    @property
+    def lang(self) -> str:
+        """
+        Get the current language code.
+
+        Returns:
+            str: The current language code
+        """
+        return self._lang
+
+    @property
+    def default_lang(self) -> str:
         """
         Get the default language code.
 
@@ -123,8 +133,10 @@ class I18n:
         """
         self._lang = self.match_lang(lang)
         if self._lang is None:
-            print(f"Language '{lang}' not found. Falling back to default language.")
-            self._lang = self._default_lang
+            self.set_to_default_lang()
+            print(
+                f"Invalid language '{lang}' specified. Falling back to default language '{self._default_lang}'."
+            )
 
     def set_default_lang(self, lang: str) -> None:
         """
@@ -140,7 +152,7 @@ class I18n:
             ValueError: If the specified language is not valid
         """
         if not self.is_valid_lang(lang):
-            raise ValueError(f"Invalid default language: {lang}")
+            self._default_lang = "en"
         self._default_lang = lang
 
     def set_to_default_lang(self) -> None:
@@ -200,4 +212,4 @@ class I18n:
 if __name__ == "__main__":
     i18n = I18n(lang="en", i18n_folder_path="../../../_locales")
     print(i18n.get_valid_languages())
-    print(i18n.get_message("page_config_menu_items_About"))
+    print(i18n.get_message("pet.chat.page_title"))

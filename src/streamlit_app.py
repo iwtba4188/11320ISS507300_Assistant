@@ -103,7 +103,7 @@ def lang_code_2_text(lang: str) -> str:
         str: The corresponding text representation of the language code
     """
     lang_code_text = {
-        "default": "Default",
+        "browser_default": "Browser Default",
         "en": "English",
         "zh-TW": "繁體中文",
         "zh-CN": "简体中文",
@@ -119,7 +119,10 @@ def setup_lang() -> None:
     Returns:
         None
     """
-    selected_lang = st.session_state.get("selected_lang", "default")
+    selected_lang = st.session_state.get("selected_lang", "browser_default")
+
+    if selected_lang == "browser_default":
+        i18n.set_default_lang(st.context.locale)
     i18n.set_lang(selected_lang)
 
 
@@ -133,13 +136,14 @@ def setup_sidebar() -> None:
     Returns:
         None
     """
-    lang_options = ["default", "en", "zh-TW", "zh-CN"]
+    lang_options = ["browser_default", "en", "zh-TW", "zh-CN"]
+    selected_lang = st.session_state.get("selected_lang", "browser_default")
 
     with st.sidebar:
         st.selectbox(
             "Language",
             lang_options,
-            index=0,
+            index=lang_options.index(selected_lang),
             format_func=lang_code_2_text,
             on_change=setup_lang,
             key="selected_lang",
