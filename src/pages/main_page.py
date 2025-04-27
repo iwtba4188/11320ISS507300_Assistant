@@ -17,7 +17,7 @@ from utils.helpers import (
 )
 from utils.i18n import i18n
 
-input_field_placeholder = i18n.get_message("pet.chat.input_placeholder")
+input_field_placeholder = i18n("pet.chat.input_placeholder")
 user_name = "Shihtl"
 user_image = "https://www.w3schools.com/howto/img_avatar.png"
 
@@ -26,7 +26,7 @@ def page_init() -> None:
     """
     Set the Streamlit page title using the localized message and configured user name.
     """
-    st.title(i18n.get_message("pet.chat.doc_title").format(user_name=user_name))
+    st.title(i18n("pet.chat.doc_title").format(user_name=user_name))
     st.markdown(
         """<style>
     div.stSpinner > div {
@@ -187,7 +187,7 @@ def func_call_result_badge_stream(func_call_result: dict) -> Generator:
         str: Characters forming the status badge message.
     """
     func_call_msg_i18n_key = f"pet.chat.badge.func_call_{func_call_result['status']}"
-    func_call_msg = i18n.get_message(func_call_msg_i18n_key).format(
+    func_call_msg = i18n(func_call_msg_i18n_key).format(
         func_name=func_call_result["func_call"].name
     )
 
@@ -211,9 +211,9 @@ def gemini_function_calling(
         str: Characters of badge messages and subsequent model response.
     """
     for func_call in function_calls:
-        spinner_func_call_text = i18n.get_message(
-            "pet.chat.spinner.func_call_text"
-        ).format(func_call_name=func_call.name)
+        spinner_func_call_text = i18n("pet.chat.spinner.func_call_text").format(
+            func_call_name=func_call.name
+        )
 
         with st.spinner(spinner_func_call_text, show_time=True):
             func_call_result = execute_func_call(func_call)
@@ -222,7 +222,7 @@ def gemini_function_calling(
 
         yield from func_call_result_badge_stream(func_call_result)
 
-    think_again_msg = i18n.get_message("pet.chat.badge.think_again")
+    think_again_msg = i18n("pet.chat.badge.think_again")
     yield from str_stream(info_badge(think_again_msg))
 
     yield from gemini_response_stream()
@@ -242,7 +242,7 @@ def gemini_response_stream() -> Generator:
     this_response = ""
 
     gemini_response_spinner = st_spinner(
-        text=i18n.get_message("pet.chat.spinner.gemini_response"), show_time=True
+        text=i18n("pet.chat.spinner.gemini_response"), show_time=True
     )
 
     for chunk in client.models.generate_content_stream(**gemini_api_config()):

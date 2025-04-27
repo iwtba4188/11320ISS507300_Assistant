@@ -13,16 +13,16 @@ def sidebar_name_to_page_title(pg_title: str) -> str:
     Returns:
         str: The corresponding page title for the given sidebar label
     """
-    if pg_title == i18n.get_message("sidebar.pet.chat.page_label"):
-        return i18n.get_message("pet.chat.page_title")
-    elif pg_title == i18n.get_message("sidebar.week10.2d.page_label"):
-        return i18n.get_message("week10.2d.page_title")
-    elif pg_title == i18n.get_message("sidebar.week10.3d.page_label"):
-        return i18n.get_message("week10.3d.page_title")
-    elif pg_title == i18n.get_message("sidebar.week10.skip_gram.page_label"):
-        return i18n.get_message("week10.skip_gram.page_title")
-    elif pg_title == i18n.get_message("sidebar.week10.cbow.page_label"):
-        return i18n.get_message("week10.cbow.page_title")
+    if pg_title == i18n("sidebar.pet.chat.page_label"):
+        return i18n("pet.chat.page_title")
+    elif pg_title == i18n("sidebar.week10.2d.page_label"):
+        return i18n("week10.2d.page_title")
+    elif pg_title == i18n("sidebar.week10.3d.page_label"):
+        return i18n("week10.3d.page_title")
+    elif pg_title == i18n("sidebar.week10.skip_gram.page_label"):
+        return i18n("week10.skip_gram.page_title")
+    elif pg_title == i18n("sidebar.week10.cbow.page_label"):
+        return i18n("week10.cbow.page_title")
     else:
         return pg_title
 
@@ -48,29 +48,29 @@ def setup_pages() -> None:
     #       Another one is to use `st.page_link`, but it's not as convenient as
     #       `st.navigation`.
     pages = {
-        i18n.get_message("sidebar.pet.section_label"): [
+        i18n("sidebar.pet.section_label"): [
             st.Page(
                 "pages/main_page.py",
-                title=i18n.get_message("sidebar.pet.chat.page_label"),
+                title=i18n("sidebar.pet.chat.page_label"),
                 default=True,
             ),
         ],
-        i18n.get_message("sidebar.week10.section_label"): [
+        i18n("sidebar.week10.section_label"): [
             st.Page(
                 "pages/word2vec-2d.py",
-                title=i18n.get_message("sidebar.week10.2d.page_label"),
+                title=i18n("sidebar.week10.2d.page_label"),
             ),
             st.Page(
                 "pages/word2vec-3d.py",
-                title=i18n.get_message("sidebar.week10.3d.page_label"),
+                title=i18n("sidebar.week10.3d.page_label"),
             ),
             st.Page(
                 "pages/word2vec-skip-gram.py",
-                title=i18n.get_message("sidebar.week10.skip_gram.page_label"),
+                title=i18n("sidebar.week10.skip_gram.page_label"),
             ),
             st.Page(
                 "pages/word2vec-cbow.py",
-                title=i18n.get_message("sidebar.week10.cbow.page_label"),
+                title=i18n("sidebar.week10.cbow.page_label"),
             ),
         ],
     }
@@ -84,7 +84,7 @@ def setup_pages() -> None:
         menu_items={
             "Get Help": "https://streamlit.io/",
             "Report a bug": "https://github.com/iwtba4188/11320ISS507300_Assistant",
-            "About": i18n.get_message("menu_items.about"),
+            "About": i18n("menu_items.about"),
         },
         page_icon="img/favicon.ico",
     )

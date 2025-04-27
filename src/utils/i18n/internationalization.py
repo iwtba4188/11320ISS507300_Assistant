@@ -35,6 +35,17 @@ class I18n:
         print(f"Default language: {self._default_lang}")
         print(f"Available languages: {self.get_valid_languages()}")
 
+    def __call__(self, key: str) -> str:
+        """Retrieve the translated message for the given key.
+
+        Arguments:
+            key (str): The key for the translation
+
+        Returns:
+            str: The translated message
+        """
+        return self.get_message(key)
+
     def _validate_translations(self) -> None:
         """
         Validate that translation files exist and meet required format.
@@ -198,15 +209,15 @@ class I18n:
         Raises:
             KeyError: If the key is not found in any language
         """
-        try:
-            return self._translations[self._lang][key]["message"]
-        except KeyError:
-            try:
-                return self._translations[self._default_lang][key]["message"]
-            except KeyError:
-                raise KeyError(
-                    f"Missing translation for key: {key} (lang: {self._lang}, default_lang: {self._default_lang})"
-                )
+        possible_langs = [self._lang, self._default_lang, "en"]
+
+        for lang in possible_langs:
+            if res := self._translations.get(lang, {}).get(key, {}).get("message"):
+                return res
+
+        raise KeyError(
+            f"Missing translation for key: {key} (lang: {self._lang}, default_lang: {self._default_lang}, 'en')"
+        )
 
 
 if __name__ == "__main__":
