@@ -43,7 +43,7 @@ def train(training_corpus: list, is_remove_stopwords: bool) -> None:
     return model
 
 
-def most_similar_words(options: list) -> str:
+def select_similar_word(options: list) -> str:
     return st.selectbox(
         i18n("week10.most_similar_words"),
         label_visibility="collapsed",
@@ -53,25 +53,32 @@ def most_similar_words(options: list) -> str:
     )
 
 
-def show_results(subheader: str, model: Word2Vec, word: str) -> None:
-    st.subheader(subheader)
+def get_similar_words(model: Word2Vec, word: str) -> pd.DataFrame | None:
     try:
         similar_words = model.wv.most_similar(word)
-
         df_similar_words = pd.DataFrame(similar_words, columns=["Word", "Similarity"])
-        st.dataframe(
-            df_similar_words,
-            column_config={
-                "Word": st.column_config.TextColumn(),
-                "Similarity": st.column_config.ProgressColumn(
-                    format="%.5f",
-                    min_value=0,
-                    max_value=1,
-                ),
-            },
-        )
-    except KeyError:
+        return df_similar_words
+    except KeyError as e:
         st.warning(i18n("week10.not_keyword"))
+
+
+def show_results(subheader: str, df_similar_words: pd.DataFrame | None) -> None:
+    if df_similar_words is None:
+        return
+
+    st.subheader(subheader)
+
+    st.dataframe(
+        df_similar_words,
+        column_config={
+            "Word": st.column_config.TextColumn(),
+            "Similarity": st.column_config.ProgressColumn(
+                format="%.5f",
+                min_value=0,
+                max_value=1,
+            ),
+        },
+    )
 
 
 def train_and_show(df: pd.DataFrame) -> None:
@@ -79,21 +86,24 @@ def train_and_show(df: pd.DataFrame) -> None:
         st.warning(i18n("week10.no_sentences"))
         return
 
-    model_original = train(training_corpus, is_remove_stopwords=False)
-    model_remove_stopwords = train(training_corpus, is_remove_stopwords=True)
+    models = {
+        "original": train(training_corpus, is_remove_stopwords=False),
+        "rm_stopwords": train(training_corpus, is_remove_stopwords=True),
+    }
 
     st.subheader(i18n("week10.most_similar_words"))
 
-    if word := most_similar_words(model_original.wv.index_to_key):
-        col1, col2 = st.columns(2)
+    if word := select_similar_word(models["original"].wv.index_to_key):
+        cols = st.columns(len(models))
 
-        with col1:
-            show_results(i18n("week10.original_model"), model_original, word)
+        results = []
+        for col, model in zip(cols, models.values()):
+            with col:
+                results.append(get_similar_words(model, word))
 
-        with col2:
-            show_results(
-                i18n("week10.remove_stopwords_model"), model_remove_stopwords, word
-            )
+        for col, model_name, result in zip(cols, models.keys(), results):
+            with col:
+                show_results(i18n(f"week10.{model_name}_model"), result)
 
 
 if __name__ == "__main__":

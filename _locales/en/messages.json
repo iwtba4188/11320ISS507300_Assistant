@@ -127,7 +127,7 @@
         "message": "Original Model",
         "description": "The label of the original model subheader in week 10 Q2 & Q3"
     },
-    "week10.remove_stopwords_model": {
+    "week10.rm_stopwords_model": {
         "message": "Remove stopwords",
         "description": "The label of the remove stopwords model in week 10 Q2 & Q3"
     },
