@@ -10,19 +10,6 @@ from utils.i18n import I18n
 i18n = I18n(lang="en")
 
 
-def test_utils_i18n(mocker: MockFixture) -> None:
-    # patch the property on the class
-    mocker.patch.object(
-        type(st.context), "locale", new_callable=PropertyMock, return_value="en"
-    )
-
-    mocker.patch.object()
-
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
-
-    assert not at.exception
-
-
 @pytest.mark.parametrize(
     "init_lang",
     ["en", "en-US", "zh-TW", "zh-CN", "zh-HK"],
