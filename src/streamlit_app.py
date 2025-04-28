@@ -127,6 +127,9 @@ def setup_lang() -> None:
     if selected_lang == "browser_default":
         print(f"Browser default language: {st.context.locale}")
         i18n.set_default_lang(st.context.locale)
+        # XXX: Waiting the rerun context error to be fixed in Streamlit
+        # ref: https://github.com/streamlit/streamlit/issues/11111
+        i18n.set_default_lang(st.context.locale if st.context.locale else "en")
     i18n.set_lang(selected_lang)
 
 
