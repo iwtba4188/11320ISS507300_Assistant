@@ -125,6 +125,7 @@ def setup_lang() -> None:
     selected_lang = st.session_state.get("selected_lang", "browser_default")
 
     if selected_lang == "browser_default":
+        print(f"Browser default language: {st.context.locale}")
         i18n.set_default_lang(st.context.locale)
     i18n.set_lang(selected_lang)
 
