@@ -1,6 +1,3 @@
-import streamlit as st
-
-
 class I18n:
     """
     A class to handle internationalization (i18n) for application.
@@ -173,7 +170,7 @@ class I18n:
         Returns:
             None
         """
-        self.set_lang(self._default_lang)
+        self._lang = self._default_lang
 
     def match_lang(self, lang: str) -> str | None:
         """
