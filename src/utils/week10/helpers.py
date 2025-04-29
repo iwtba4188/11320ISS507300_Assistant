@@ -26,6 +26,7 @@ def df_input() -> pd.DataFrame:
                 required=True,
             ),
         },
+        key="df_input",
     )
 
     return df

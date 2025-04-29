@@ -50,6 +50,7 @@ def select_similar_word(options: list) -> str:
         options=options,
         index=None,
         placeholder=i18n("week10.most_similar_words.placeholder"),
+        key="select_similar_word",
     )
 
 
