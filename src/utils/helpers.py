@@ -1,3 +1,6 @@
+import time
+from typing import Generator
+
 import streamlit as st
 
 from utils.i18n import i18n
@@ -80,6 +83,23 @@ class st_spinner:
 # s = st_spinner()
 # time.sleep(5)
 # s.end()
+
+
+# [IO]
+def str_stream(text: str) -> Generator:
+    """
+    Stream the provided text by yielding one character at a time with a brief delay
+    to simulate typing.
+
+    Arguments:
+        text (str): Text to stream character by character
+
+    Yields:
+        str: Individual characters of the text
+    """
+    for char in text:
+        yield char
+        time.sleep(0.005)
 
 
 # [General]

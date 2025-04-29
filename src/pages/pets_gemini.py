@@ -1,25 +1,30 @@
 import os
 import time
-from collections import deque
 from typing import Generator
 
 import streamlit as st
 from google import genai
 from google.genai import types
 
+from utils.bots import (
+    chat,
+    display_chat_history,
+)
+from utils.bots.ctx_mgr import CtxMgr
 from utils.function_call import get_awaiting_adoption_pet_info
 from utils.helpers import (
     error_badge,
     info_badge,
     read_file_content,
     st_spinner,
+    str_stream,
     success_badge,
 )
 from utils.i18n import i18n
 
 input_field_placeholder = i18n("pets.chat.input_placeholder")
 user_name = "Shihtl"
-user_image = "https://www.w3schools.com/howto/img_avatar.png"
+ctx = CtxMgr("pets_gemini")
 
 
 def page_init() -> None:
@@ -35,35 +40,6 @@ def page_init() -> None:
 </style>""",
         unsafe_allow_html=True,
     )
-
-
-def str_stream(text: str) -> Generator:
-    """
-    Stream the provided text by yielding one character at a time with a brief delay
-    to simulate typing.
-
-    Arguments:
-        text (str): Text to stream character by character
-
-    Yields:
-        str: Individual characters of the text
-    """
-    for char in text:
-        yield char
-        time.sleep(0.005)
-
-
-def add_content(content: types.Content) -> None:
-    """
-    Append a content item to st.session_state["contents"], initializing it as a deque of max
-    length 20 if needed.
-
-    Arguments:
-        content (types.Content): Content item to add to the session state
-    """
-    if "contents" not in st.session_state:
-        st.session_state["contents"] = deque(maxlen=20)
-    st.session_state["contents"].append(content)
 
 
 def init_gemini_api_config() -> dict:
@@ -116,7 +92,7 @@ def gemini_api_config() -> dict:
     else:
         gemini_configs: dict = st.session_state["gemini_configs"]
 
-    gemini_configs["contents"] = list(st.session_state["contents"])
+    gemini_configs["contents"] = ctx.get_context()
     return gemini_configs
 
 
@@ -145,6 +121,7 @@ def execute_func_call(func_call: types.FunctionCall) -> dict:
         if func_call.name == "get_awaiting_adoption_pet_info":
             func_call_result["status"] = "success"
             func_call_result["result"] = get_awaiting_adoption_pet_info()
+        # XXX: Extension point for other function calls
         else:
             raise ValueError(f"Unknown function call: {func_call.name}")
     except Exception as e:
@@ -166,13 +143,13 @@ def add_func_call_result(func_call_result: dict) -> None:
         name=func_call_result["func_call"].name,
         response={"result": func_call_result["result"]},
     )
-    add_content(
+    ctx.add_context(
         types.Content(
             role="model",
             parts=[types.Part(function_call=func_call_result["func_call"])],
         )
     )
-    add_content(types.Content(role="user", parts=[function_response_part]))
+    ctx.add_context(types.Content(role="user", parts=[function_response_part]))
 
 
 def func_call_result_badge_stream(func_call_result: dict) -> Generator:
@@ -254,47 +231,12 @@ def gemini_response_stream() -> Generator:
         elif chunk.function_calls:
             function_calls.extend(chunk.function_calls)
 
-    add_content(
+    ctx.add_context(
         types.Content(role="model", parts=[types.Part.from_text(text=this_response)])
     )
 
     if function_calls:
         yield from gemini_function_calling(function_calls)
-
-
-def display_chat_history() -> None:
-    """
-    Render past user and assistant messages from
-    st.session_state.history using Streamlit chat messages.
-    """
-    if "history" not in st.session_state:
-        st.session_state.history = []
-    histories = st.session_state.get("history", [])
-    for history in histories:
-        avatar = user_image if history["role"] == "user" else None
-        st.chat_message(history["role"], avatar=avatar).markdown((history["content"]))
-
-
-def chat(prompt: str):
-    """
-    Post the user's prompt, invoke response streaming, and append messages to
-    session state history.
-
-    Arguments:
-        prompt (str): Text entered by the user
-    """
-    st.chat_message("user", avatar=user_image).write(prompt)
-    st.session_state.history.append({"role": "user", "content": prompt})
-
-    add_content(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
-
-    full_response = st.chat_message("assistant").write_stream(gemini_response_stream())
-
-    if isinstance(full_response, str):
-        full_response = [full_response]
-
-    for response in full_response:
-        st.session_state.history.append({"role": "assistant", "content": response})
 
 
 def chat_bot():
@@ -310,8 +252,11 @@ def chat_bot():
         display_chat_history()
 
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
+        ctx.add_context(
+            types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
+        )
         with chat_container:
-            chat(prompt)
+            chat(prompt=prompt, stream=gemini_response_stream())
 
 
 if __name__ == "__main__":

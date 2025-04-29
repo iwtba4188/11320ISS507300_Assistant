@@ -138,5 +138,13 @@
     "week10.most_similar_words.placeholder": {
         "message": "Please enter the word you want to find similar words for.",
         "description": "The placeholder of the most similar words input field in week 10 Q2 & Q3"
+    },
+    "sidebar.section_label.home" : {
+        "message": "Home",
+        "description": "Label of the home section"
+    },
+    "sidebar.page_label.home" : {
+        "message": "Home",
+        "description": "Label of the home page"
     }
 }

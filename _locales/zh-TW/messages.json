@@ -138,5 +138,13 @@
     "week10.most_similar_words.placeholder": {
         "message": "請輸入您想查找相似詞的單字。",
         "description": "The placeholder of the most similar words input field in week 10 Q2 & Q3"
+    },
+    "sidebar.section_label.home" : {
+        "message": "首頁",
+        "description": "Label of the home section"
+    },
+    "sidebar.page_label.home" : {
+        "message": "首頁",
+        "description": "Label of the home page"
     }
 }
