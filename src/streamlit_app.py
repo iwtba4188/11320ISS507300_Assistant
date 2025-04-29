@@ -16,15 +16,15 @@ def sidebar_name_to_page_title(pg_title: str) -> str:
     Returns:
         str: The corresponding page title for the given sidebar label
     """
-    if pg_title == i18n("sidebar.pet.chat.page_label"):
-        return i18n("pet.chat.page_title")
-    elif pg_title == i18n("sidebar.week10.2d.page_label"):
+    if pg_title == i18n("sidebar.page_label.pets.chat"):
+        return i18n("pets.chat.page_title")
+    elif pg_title == i18n("sidebar.page_label.week10.2d"):
         return i18n("week10.2d.page_title")
-    elif pg_title == i18n("sidebar.week10.3d.page_label"):
+    elif pg_title == i18n("sidebar.page_label.week10.3d"):
         return i18n("week10.3d.page_title")
-    elif pg_title == i18n("sidebar.week10.skip_gram.page_label"):
+    elif pg_title == i18n("sidebar.page_label.week10.skip_gram"):
         return i18n("week10.skip_gram.page_title")
-    elif pg_title == i18n("sidebar.week10.cbow.page_label"):
+    elif pg_title == i18n("sidebar.page_label.week10.cbow"):
         return i18n("week10.cbow.page_title")
     else:
         return pg_title
@@ -51,29 +51,35 @@ def setup_pages() -> None:
     #       Another one is to use `st.page_link`, but it's not as convenient as
     #       `st.navigation`.
     pages = {
-        i18n("sidebar.pet.section_label"): [
+        i18n("sidebar.section_label.home"): [
             st.Page(
-                "pages/main_page.py",
-                title=i18n("sidebar.pet.chat.page_label"),
+                "pages/home.py",
+                title=i18n("sidebar.page_label.home"),
                 default=True,
+            )
+        ],
+        i18n("sidebar.section_label.pet"): [
+            st.Page(
+                "pages/pets_gemini.py",
+                title=i18n("sidebar.page_label.pets.chat"),
             ),
         ],
-        i18n("sidebar.week10.section_label"): [
+        i18n("sidebar.section_label.week10"): [
             st.Page(
                 "pages/word2vec-2d.py",
-                title=i18n("sidebar.week10.2d.page_label"),
+                title=i18n("sidebar.page_label.week10.2d"),
             ),
             st.Page(
                 "pages/word2vec-3d.py",
-                title=i18n("sidebar.week10.3d.page_label"),
+                title=i18n("sidebar.page_label.week10.3d"),
             ),
             st.Page(
                 "pages/word2vec-skip-gram.py",
-                title=i18n("sidebar.week10.skip_gram.page_label"),
+                title=i18n("sidebar.page_label.week10.skip_gram"),
             ),
             st.Page(
                 "pages/word2vec-cbow.py",
-                title=i18n("sidebar.week10.cbow.page_label"),
+                title=i18n("sidebar.page_label.week10.cbow"),
             ),
         ],
     }

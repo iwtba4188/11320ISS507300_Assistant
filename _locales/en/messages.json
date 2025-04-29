@@ -7,31 +7,31 @@
         "message": "Loading...",
         "description": "Loading message of the page."
     },
-    "sidebar.pet.section_label": {
+    "sidebar.section_label.pet": {
         "message": "Pet Consultant",
         "description": "Label of the pet consultant section"
     },
-    "sidebar.pet.chat.page_label": {
+    "sidebar.page_label.pets.chat": {
         "message": "Start chatting",
         "description": "Label of the pet consultant page"
     },
-    "sidebar.week10.section_label": {
+    "sidebar.section_label.week10": {
         "message": "Week 10: Word2Vec Visualization",
         "description": "Label of the week 10 section"
     },
-    "sidebar.week10.2d.page_label": {
+    "sidebar.page_label.week10.2d": {
         "message": "2D Visualization",
         "description": "Label of the week 10 Q1-1 2D"
     },
-    "sidebar.week10.3d.page_label": {
+    "sidebar.page_label.week10.3d": {
         "message": "3D Visualization",
         "description": "Label of the week 10 Q1-1 3D"
     },
-    "sidebar.week10.skip_gram.page_label": {
+    "sidebar.page_label.week10.skip_gram": {
         "message": "SKIP-GRAM Training",
         "description": "Label of the week 10 Q2 SKIP-GRAM"
     },
-    "sidebar.week10.cbow.page_label": {
+    "sidebar.page_label.week10.cbow": {
         "message": "CBOW Training",
         "description": "Label of the week 10 Q3 CBOW"
     },
@@ -43,35 +43,35 @@
         "message": "Sentence",
         "description": "Column name for the data frame"
     },
-    "pet.chat.input_placeholder": {
+    "pets.chat.input_placeholder": {
         "message": "Please enter the question you want to ask~",
         "description": "The placeholder of user input field in pet consultant page"
     },
-    "pet.chat.page_title": {
+    "pets.chat.page_title": {
         "message": "Pet Consultant - Your Best Pet Assistant",
         "description": "The page title in the title bar of pet consultant page"
     },
-    "pet.chat.doc_title": {
+    "pets.chat.doc_title": {
         "message": "💬 {user_name}'s Chatbot",
         "description": "The page title in pet consultant page"
     },
-    "pet.chat.spinner.func_call_text": {
+    "pets.chat.spinner.func_call_text": {
         "message": "Calling {func_call_name}...",
         "description": "The loading text in pet consultant page"
     },
-    "pet.chat.spinner.gemini_response": {
+    "pets.chat.spinner.gemini_response": {
         "message": "Waiting for Gemini response...",
         "description": "The loading text when waiting for Gemini response in pet consultant page"
     },
-    "pet.chat.badge.func_call_success": {
+    "pets.chat.badge.func_call_success": {
         "message": "Success calling function `{func_name}`!",
         "description": "The badge of function call success in pet consultant page"
     },
-    "pet.chat.badge.func_call_failure": {
+    "pets.chat.badge.func_call_failure": {
         "message": "Fail calling function `{func_name}`!!!",
         "description": "The badge of function call failure in pet consultant page"
     },
-    "pet.chat.badge.think_again": {
+    "pets.chat.badge.think_again": {
         "message": "Think again using results from function calls.",
         "description": "The badge of information about thinking again in pet consultant page"
     },

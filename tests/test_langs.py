@@ -51,9 +51,9 @@ def test_lang_selection(mocker: MockFixture, select_lang: str) -> None:
     # print(f"Before: {at.chat_input[0].placeholder=}")
     at.selectbox(key="selected_lang").select(select_lang).run()
     # print(f"After: {at.chat_input[0].placeholder=}")
-    # print(f"Ans: {i18n('pet.chat.input_placeholder')=}")
+    # print(f"Ans: {i18n('pets.chat.input_placeholder')=}")
 
-    assert at.chat_input[0].placeholder == i18n("pet.chat.input_placeholder")
+    assert at.chat_input[0].placeholder == i18n("pets.chat.input_placeholder")
 
     assert not at.exception
 

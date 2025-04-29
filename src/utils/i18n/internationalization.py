@@ -220,4 +220,4 @@ class I18n:
 if __name__ == "__main__":  # pragma: no cover
     i18n = I18n(lang="en", i18n_folder_path="../../../_locales")
     print(i18n.get_valid_languages())
-    print(i18n.get_message("pet.chat.page_title"))
+    print(i18n.get_message("pets.chat.page_title"))
