@@ -18,4 +18,5 @@
             "notebook.source.organizeImports": "explicit"
         },
     },
+    "python.analysis.typeCheckingMode": "basic",
 }

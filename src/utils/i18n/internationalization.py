@@ -97,7 +97,7 @@ class I18n:
         return self.match_lang(lang) is not None
 
     @property
-    def lang(self) -> str:
+    def lang(self) -> str | None:
         """
         Get the current language code.
 

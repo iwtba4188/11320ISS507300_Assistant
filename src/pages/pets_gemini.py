@@ -1,6 +1,7 @@
 import os
 import time
-from collections.abc import Generator
+from collections import deque
+from collections.abc import Callable, Generator
 
 import streamlit as st
 from google import genai
@@ -24,7 +25,8 @@ from utils.i18n import i18n
 
 input_field_placeholder = i18n("pets.chat.input_placeholder")
 user_name = "Shihtl"
-ctx = CtxMgr("pets_gemini")
+ctx_history = CtxMgr("pets_gemini_history", [])
+ctx_content = CtxMgr("pets_gemini", deque(maxlen=20))
 
 
 def page_init() -> None:
@@ -56,7 +58,7 @@ def init_gemini_api_config() -> dict:
     system_prompt = read_file_content("./src/static/system_prompt.txt")
 
     model = "gemini-2.5-flash-preview-04-17"
-    tools = [get_awaiting_adoption_pet_info]
+    tools: list[Callable] = [get_awaiting_adoption_pet_info]
 
     generate_content_config = types.GenerateContentConfig(
         temperature=0,
@@ -68,7 +70,7 @@ def init_gemini_api_config() -> dict:
         system_instruction=[
             types.Part.from_text(text=system_prompt),
         ],
-        tools=tools,
+        tools=tools,  # type: ignore
         automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
     )
 
@@ -92,7 +94,7 @@ def gemini_api_config() -> dict:
     else:
         gemini_configs: dict = st.session_state["gemini_configs"]
 
-    gemini_configs["contents"] = ctx.get_context()
+    gemini_configs["contents"] = ctx_content.get_context()
     return gemini_configs
 
 
@@ -143,13 +145,13 @@ def add_func_call_result(func_call_result: dict) -> None:
         name=func_call_result["func_call"].name,
         response={"result": func_call_result["result"]},
     )
-    ctx.add_context(
+    ctx_content.add_context(
         types.Content(
             role="model",
             parts=[types.Part(function_call=func_call_result["func_call"])],
         )
     )
-    ctx.add_context(types.Content(role="user", parts=[function_response_part]))
+    ctx_content.add_context(types.Content(role="user", parts=[function_response_part]))
 
 
 def func_call_result_badge_stream(func_call_result: dict) -> Generator:
@@ -231,7 +233,7 @@ def gemini_response_stream() -> Generator:
         elif chunk.function_calls:
             function_calls.extend(chunk.function_calls)
 
-    ctx.add_context(
+    ctx_content.add_context(
         types.Content(role="model", parts=[types.Part.from_text(text=this_response)])
     )
 
@@ -249,14 +251,14 @@ def chat_bot():
     """
     chat_container = st.container(border=True)
     with chat_container:
-        display_chat_history()
+        display_chat_history(ctx_history)
 
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
-        ctx.add_context(
+        ctx_content.add_context(
             types.Content(role="user", parts=[types.Part.from_text(text=prompt)])
         )
         with chat_container:
-            chat(prompt=prompt, stream=gemini_response_stream())
+            chat(ctx_history, prompt=prompt, stream=gemini_response_stream())
 
 
 if __name__ == "__main__":
