@@ -33,7 +33,8 @@ def df_input() -> pd.DataFrame:
 
 
 def build_corpus(df: pd.DataFrame) -> list[str]:
-    df = df[df["selected"] == True]
+    # Track: https://github.com/astral-sh/ruff/issues/1852
+    df = df[df["selected"] == True]  # noqa: E712
     df = df.replace(regex=r"^\s*$", value=np.nan).dropna()
 
     corpus = df["sentence"].tolist()

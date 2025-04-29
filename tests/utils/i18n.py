@@ -27,13 +27,11 @@ class I18n:
         import os
 
         translations = {}
-        for root, dirs, files in os.walk(self._i18n_folder_path):
+        for root, _dirs, files in os.walk(self._i18n_folder_path):
             print(f"Checking {root}...")
             if "messages.json" in files:
                 lang = os.path.basename(root)
-                with open(
-                    os.path.join(root, "messages.json"), "r", encoding="utf-8"
-                ) as f:
+                with open(os.path.join(root, "messages.json"), encoding="utf-8") as f:
                     translations[lang] = json.load(f)
 
         return translations

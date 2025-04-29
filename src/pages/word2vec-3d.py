@@ -40,14 +40,14 @@ def draw_3d(training_corpus: list) -> None:
         mode="markers+text",
         text=model.wv.index_to_key,
         textposition="top center",
-        marker=dict(color=word_colors, size=2),
+        marker={"color": word_colors, "size": 2},
     )
 
     fig = go.Figure(data=[scatter])
 
     # Set the plot title and axis labels
     fig.update_layout(
-        scene=dict(xaxis_title="X", yaxis_title="Y", zaxis_title="Z"),
+        scene={"xaxis_title": "X", "yaxis_title": "Y", "zaxis_title": "Z"},
         title=i18n("week10.3d.fig_title"),
         # width=1000,  # Custom width
         height=700,  # Custom height

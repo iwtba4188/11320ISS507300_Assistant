@@ -1,1 +1,1 @@
-from .pets import *
+from .pets import get_awaiting_adoption_pet_info

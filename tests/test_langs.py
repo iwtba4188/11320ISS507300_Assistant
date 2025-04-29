@@ -152,8 +152,8 @@ def test_week10_similarity_not_empty(mocker: MockFixture, page_path: str) -> Non
     # check if the selectbox exists
     try:
         at.selectbox(key="select_similar_word")
-    except KeyError:  # pragma: no cover
-        assert False, "KeyError: select_similar_word not found"
+    except KeyError as e:  # pragma: no cover
+        raise AssertionError("select_similar_word not found") from e
 
     selectbox_similar_word = at.selectbox(key="select_similar_word")
 

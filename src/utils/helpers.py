@@ -1,5 +1,5 @@
 import time
-from typing import Generator
+from collections.abc import Generator
 
 import streamlit as st
 
@@ -17,7 +17,7 @@ def read_file_content(file_path: str) -> str:
     Returns:
         str: Content of the file as a string
     """
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path, encoding="utf-8") as file:
         file_content = file.read()
     return file_content
 

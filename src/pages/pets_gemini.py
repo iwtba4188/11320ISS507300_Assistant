@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Generator
+from collections.abc import Generator
 
 import streamlit as st
 from google import genai

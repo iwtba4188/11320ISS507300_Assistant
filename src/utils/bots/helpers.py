@@ -1,4 +1,4 @@
-from typing import Generator
+from collections.abc import Generator
 
 import streamlit as st
 
@@ -15,7 +15,7 @@ def display_chat_history(
     histories = st.session_state.get("history", [])
     for history in histories:
         avatar = user_image if history["role"] == "user" else None
-        st.chat_message(history["role"], avatar=avatar).markdown((history["content"]))
+        st.chat_message(history["role"], avatar=avatar).markdown(history["content"])
 
 
 def chat(prompt: str, stream: Generator):

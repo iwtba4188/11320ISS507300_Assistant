@@ -40,7 +40,7 @@ def draw_2d(training_corpus: list) -> None:
         mode="markers+text",
         text=model.wv.index_to_key,
         textposition="top center",
-        marker=dict(color=word_colors, size=8),
+        marker={"color": word_colors, "size": 8},
         customdata=word_colors,
         ids=word_ids,
         hovertemplate="Word: %{text}<br>Color: %{customdata}",
@@ -60,9 +60,13 @@ def draw_2d(training_corpus: list) -> None:
                 x=[vector[0] for vector in line_vectors],
                 y=[vector[1] for vector in line_vectors],
                 mode="lines",
-                line=dict(color=color_map[i % len(color_map)], width=1, dash="solid"),
+                line={
+                    "color": color_map[i % len(color_map)],
+                    "width": 1,
+                    "dash": "solid",
+                },
                 showlegend=True,
-                name=f"Sentence {i+1}",  # Customize the legend text
+                name=f"Sentence {i + 1}",  # Customize the legend text
                 hoverinfo="all",  # Disable line trace hover info
             )
             # Set different marker symbols for the start and end words

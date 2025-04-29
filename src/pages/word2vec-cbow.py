@@ -59,7 +59,7 @@ def get_similar_words(model: Word2Vec, word: str) -> pd.DataFrame | None:
         similar_words = model.wv.most_similar(word)
         df_similar_words = pd.DataFrame(similar_words, columns=["Word", "Similarity"])
         return df_similar_words
-    except KeyError as e:
+    except KeyError:
         st.warning(i18n("week10.not_keyword"))
 
 
@@ -98,11 +98,11 @@ def train_and_show(df: pd.DataFrame) -> None:
         cols = st.columns(len(models))
 
         results = []
-        for col, model in zip(cols, models.values()):
+        for col, model in zip(cols, models.values(), strict=False):
             with col:
                 results.append(get_similar_words(model, word))
 
-        for col, name, result in zip(cols, models.keys(), results):
+        for col, name, result in zip(cols, models.keys(), results, strict=False):
             with col:
                 show_results(i18n(f"week10.{name}_model"), result)
 
