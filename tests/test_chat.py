@@ -13,6 +13,7 @@ def test_chat(mocker: MockFixture) -> None:
     )
 
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=60).run()
+    at.switch_page("./pages/pets_gemini.py").run()
     at.secrets["gemini_api_key"] = os.getenv("GEMINI_API_KEY")
 
     # check simple chat

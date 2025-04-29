@@ -17,7 +17,13 @@ i18n = I18n(lang="en")
 )
 @pytest.mark.parametrize(
     "page_path",
-    ["word2vec-2d", "word2vec-3d", "word2vec-skip-gram", "word2vec-cbow"],
+    [
+        "pets_gemini",
+        "word2vec-2d",
+        "word2vec-3d",
+        "word2vec-skip-gram",
+        "word2vec-cbow",
+    ],
 )
 def test_page_diff_langs(mocker: MockFixture, page_path: str, init_lang: str) -> None:
     # patch the property on the class
@@ -47,6 +53,7 @@ def test_lang_selection(mocker: MockFixture, select_lang: str) -> None:
     )
 
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
+    at.switch_page("./pages/pets_gemini.py").run()
 
     # print(f"Before: {at.chat_input[0].placeholder=}")
     at.selectbox(key="selected_lang").select(select_lang).run()
