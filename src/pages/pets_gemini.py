@@ -1,7 +1,7 @@
 import os
 import time
 from collections import deque
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 
 import streamlit as st
 from google import genai
@@ -58,7 +58,7 @@ def init_gemini_api_config() -> dict:
     system_prompt = read_file_content("./src/static/system_prompt.txt")
 
     model = "gemini-2.5-flash-preview-04-17"
-    tools: list[Callable] = [get_awaiting_adoption_pet_info]
+    tools = [get_awaiting_adoption_pet_info]
 
     generate_content_config = types.GenerateContentConfig(
         temperature=0,
