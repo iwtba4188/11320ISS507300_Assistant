@@ -1,4 +1,4 @@
-> Clone from [GildShen/Gild-chatbot](https://github.com/GildShen/Gild-chatbot).
+> Forked from [GildShen/Gild-chatbot](https://github.com/GildShen/Gild-chatbot).
 
 # 💬 Chatbot template
 

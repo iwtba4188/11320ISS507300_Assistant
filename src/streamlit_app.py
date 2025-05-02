@@ -18,6 +18,8 @@ def sidebar_name_to_page_title(pg_title: str) -> str:
     """
     if pg_title == i18n("sidebar.page_label.pets.chat"):
         return i18n("pets.chat.page_title")
+    elif pg_title == i18n("sidebar.page_label.pets.autogen"):
+        return i18n("pets.autogen.page_title")
     elif pg_title == i18n("sidebar.page_label.week10.2d"):
         return i18n("week10.2d.page_title")
     elif pg_title == i18n("sidebar.page_label.week10.3d"):
@@ -62,6 +64,10 @@ def setup_pages() -> None:
             st.Page(
                 "pages/pets_gemini.py",
                 title=i18n("sidebar.page_label.pets.chat"),
+            ),
+            st.Page(
+                "pages/pets_autogen.py",
+                title=i18n("sidebar.page_label.pets.autogen"),
             ),
         ],
         i18n("sidebar.section_label.week10"): [

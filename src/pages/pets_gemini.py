@@ -11,7 +11,7 @@ from utils.bots import (
     chat,
     display_chat_history,
 )
-from utils.bots.ctx_mgr import CtxMgr
+from utils.ctx_mgr import CtxMgr
 from utils.function_call import get_awaiting_adoption_pet_info
 from utils.helpers import (
     error_badge,
@@ -241,7 +241,7 @@ def gemini_response_stream() -> Generator:
         yield from gemini_function_calling(function_calls)
 
 
-def chat_bot():
+def chat_bot() -> None:
     """
     Render the chat interface and process user input in Streamlit.
 

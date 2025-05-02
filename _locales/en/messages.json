@@ -146,5 +146,13 @@
     "sidebar.page_label.home" : {
         "message": "Home",
         "description": "Label of the home page"
+    },
+    "sidebar.page_label.pets.autogen": {
+        "message": "Autogen Version",
+        "description": "Label of the auto-generated page"
+    },
+    "pets.autogen.page_title": {
+        "message": "Pet Consultant (Autogen) - Your Best Pet Assistant",
+        "description": "The page title in the title bar of pet consultant (autogen) page"
     }
 }

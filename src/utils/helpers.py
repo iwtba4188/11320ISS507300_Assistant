@@ -65,17 +65,17 @@ def error_badge(msg: str) -> str:
 # [Streamlit Spinner]
 class st_spinner:
     # ref: https://github.com/streamlit/streamlit/issues/6799#issuecomment-1578395288
-    def __init__(self, text=i18n("spinner.loading"), show_time=True):
+    def __init__(self, text=i18n("spinner.loading"), show_time=True) -> None:
         self.text = text
         self.show_time = show_time
         self._spinner = iter(self._start())  # This creates an infinite spinner
         next(self._spinner)  #  This starts it
 
-    def _start(self):
+    def _start(self) -> Generator:
         with st.spinner(self.text, show_time=self.show_time):
             yield
 
-    def end(self):  # This ends it
+    def end(self) -> None:  # This ends it
         next(self._spinner, None)
 
 
