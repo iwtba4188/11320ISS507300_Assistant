@@ -1,8 +1,11 @@
 from collections.abc import Generator
 
+import nest_asyncio
 import streamlit as st
 
 from utils.ctx_mgr import CtxMgr
+
+nest_asyncio.apply()
 
 
 def display_chat_history(
@@ -33,6 +36,28 @@ def chat(ctx_history: CtxMgr, prompt: str, stream: Generator) -> None:
     ctx_history.add_context({"role": "user", "content": prompt})
 
     full_response = st.chat_message("assistant").write_stream(stream)
+
+    if isinstance(full_response, str):
+        full_response = [full_response]
+
+    for response in full_response:
+        ctx_history.add_context({"role": "assistant", "content": response})
+
+
+async def a_chat(ctx_history: CtxMgr, prompt: str, res_func: Generator) -> None:
+    """
+    Post the user's prompt, invoke response streaming, and append messages to
+    session state history.
+
+    Arguments:
+        prompt (str): Text entered by the user
+    """
+    user_image = "https://www.w3schools.com/howto/img_avatar.png"
+
+    st.chat_message("user", avatar=user_image).write(prompt)
+    ctx_history.add_context({"role": "user", "content": prompt})
+
+    full_response = st.chat_message("assistant").write_stream(res_func(prompt))
 
     if isinstance(full_response, str):
         full_response = [full_response]

@@ -1,24 +1,22 @@
+import asyncio
 import os
 from collections import deque
-from collections.abc import Generator
 
 import streamlit as st
 from autogen import (
     ConversableAgent,
-    GroupChat,
-    GroupChatManager,
     LLMConfig,
     UserProxyAgent,
 )
-from httpx import stream
+from autogen.io.run_response import AsyncRunResponseProtocol
 
 from utils.bots import (
-    chat,
+    a_chat,
     display_chat_history,
 )
 from utils.ctx_mgr import CtxMgr
 from utils.function_call.pets import get_awaiting_adoption_pet_info
-from utils.helpers import read_file_content
+from utils.helpers import info_badge, read_file_content, str_stream, success_badge
 from utils.i18n import i18n
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", None)
@@ -44,85 +42,67 @@ def page_init() -> None:
     )
 
 
-def autogen_init(ctx_history: CtxMgr) -> tuple[UserProxyAgent, GroupChatManager]:
-    def is_termination_msg(x):
-        return x.get("content", "").rstrip().endswith("TERMINATE")
-
+def autogen_init(ctx_history: CtxMgr):
     llm_config_gemini = LLMConfig(
         api_type="google",
-        model="gemini-2.0-flash-lite",  # The specific model
+        model="gemini-2.5-flash-preview-04-17",  # The specific model
         api_key=GEMINI_API_KEY,  # Authentication
         stream=True,
     )
 
     user_proxy = UserProxyAgent(
         name="user_proxy",
-        human_input_mode="NEVER",  # input() doesn't work, so needs to be "NEVER" here
-        max_consecutive_auto_reply=10,
-        is_termination_msg=is_termination_msg,
-        code_execution_config=False,
+        human_input_mode="NEVER",
         llm_config=llm_config_gemini,
-        system_message="""""",
+        code_execution_config={
+            "use_docker": False,
+        },
+        function_map={"get_awaiting_adoption_pet_info": get_awaiting_adoption_pet_info},
     )
 
     pets_expert = ConversableAgent(
         name="pets_expert",
-        system_message=read_file_content("./src/static/expert_system_prompt.txt"),
+        system_message=read_file_content("./src/static/expert_system_prompt.txt")
+        + "盡可能使用 functions 中的函數來取得資料",
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=2,
-        llm_config=llm_config_gemini,
-    )
-
-    adoption_info_agent = ConversableAgent(
-        name="adoption_info_agent",
-        system_message="You can provide information about pets available for adoption.",
-        human_input_mode="NEVER",
-        max_consecutive_auto_reply=2,
         llm_config=llm_config_gemini,
         functions=[
             get_awaiting_adoption_pet_info,
         ],
+        code_execution_config={
+            "use_docker": False,
+        },
     )
 
-    groupchat = GroupChat(
-        agents=[
-            user_proxy,
-            pets_expert,
-            adoption_info_agent,
-        ],
-        messages=[],
-        speaker_selection_method="round_robin",
-    )
-    manager = GroupChatManager(groupchat=groupchat, llm_config=llm_config_gemini)
-
-    chat_result = manager.initiate_chat(
-        manager,
-        message="Introduce yourself, including who you are and what you can do.",
+    chat_result = user_proxy.initiate_chat(
+        pets_expert,
+        message=f"Introduce yourself, including who your role and what you can do. Language: {i18n.lang}.",
         max_turns=1,
+        summary_method="last_msg",
     )
-    full_response = st.chat_message("assistant").write_stream(chat_result.chat_history)
-    ctx_history.add_context({"role": "assistant", "content": full_response})
+    st.chat_message("assistant").write_stream(str_stream(chat_result.summary))
+    ctx_history.add_context({"role": "assistant", "content": chat_result.summary})
 
-    return user_proxy, manager
+    st.session_state.user_proxy, st.session_state.pets_expert = user_proxy, pets_expert
 
 
-def autogen_response_stream(
-    user_proxy: UserProxyAgent, manager: GroupChatManager
-) -> Generator:
-    result = user_proxy.run(manager, message=ctx_content.get_context()[0])
-    for chunk in result:
-        if isinstance(chunk, str):
-            yield chunk
-        elif isinstance(chunk, stream.Response):
-            for line in chunk.iter_lines():
-                if line:
-                    yield line.decode("utf-8")
-        elif isinstance(chunk, GroupChatManager):
-            for message in chunk.messages:
-                if message.role == "assistant":
-                    yield message.content
-        else:
-            yield chunk.content
+async def autogen_response(prompt: str):
+    user_proxy: UserProxyAgent = st.session_state.user_proxy
+    pets_expert: ConversableAgent = st.session_state.pets_expert
+
+    result: AsyncRunResponseProtocol = await user_proxy.a_run(
+        pets_expert, clear_history=False, message=prompt, tools=user_proxy.tools
+    )
+
+    async for chunk in result.events:
+        print(chunk)
+        if chunk.type == "text" and chunk.content.recipient == "user_proxy":
+            yield str_stream(chunk.content.content)
+            return
+        elif chunk.type == "execute_function":
+            yield str_stream(info_badge(f"`{chunk.content.func_name}`"))
+        elif chunk.type == "tool_response":
+            yield str_stream(success_badge("success!"))
 
 
 def chat_bot() -> None:
@@ -133,22 +113,24 @@ def chat_bot() -> None:
     When the user submits a message, calls chat() inside the same container to
     render and stream the assistant's response.
     """
-    if ctx_history.size() == 0:
-        user_proxy, manager = autogen_init(ctx_history)
-
     chat_container = st.container(border=True)
-    with chat_container:
-        display_chat_history(ctx_history)
 
+    with chat_container:
+        if ctx_history.size() == 0:
+            autogen_init(ctx_history)
+        else:
+            display_chat_history(ctx_history)
+
+    print("##### Rerun")
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
-        ctx_content.clear_context()
-        ctx_content.add_context(prompt)
+        # if "chat_loop" in st.session_state:
+        #     st.session_state.future.set_result(prompt)
+        #     st.session_state.future = None
+        #     print(f"User input set to future: {prompt}")
+        #     return
+
         with chat_container:
-            chat(
-                ctx_history,
-                prompt=prompt,
-                stream=autogen_response_stream(user_proxy, manager),
-            )
+            asyncio.run(a_chat(ctx_history, prompt=prompt, res_func=autogen_response))
 
 
 if __name__ == "__main__":
