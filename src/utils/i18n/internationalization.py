@@ -184,6 +184,8 @@ class I18n:
             str: The most specific valid language code that matches the input
         """
         valid_langs = self.get_valid_languages()
+        if valid_langs is None:
+            return None
         valid_langs = list(filter(lambda x: lang.startswith(x), valid_langs))
 
         return sorted(valid_langs, reverse=True)[0] if valid_langs else None
