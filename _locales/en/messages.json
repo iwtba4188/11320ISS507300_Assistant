@@ -67,7 +67,7 @@
         "message": "Success calling function `{func_name}`!",
         "description": "The badge of function call success in pet consultant page"
     },
-    "pets.chat.badge.func_call_failure": {
+    "pets.chat.badge.func_call_error": {
         "message": "Fail calling function `{func_name}`!!!",
         "description": "The badge of function call failure in pet consultant page"
     },

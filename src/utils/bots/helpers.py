@@ -2,7 +2,7 @@ from collections.abc import Generator
 
 import streamlit as st
 
-from src.utils.bots.ctx_mgr import CtxMgr
+from utils.bots.ctx_mgr import CtxMgr
 
 
 def display_chat_history(
@@ -19,7 +19,7 @@ def display_chat_history(
         st.chat_message(history["role"], avatar=avatar).markdown(history["content"])
 
 
-def chat(ctx: CtxMgr, prompt: str, stream: Generator):
+def chat(ctx_history: CtxMgr, prompt: str, stream: Generator):
     """
     Post the user's prompt, invoke response streaming, and append messages to
     session state history.
@@ -30,7 +30,7 @@ def chat(ctx: CtxMgr, prompt: str, stream: Generator):
     user_image = "https://www.w3schools.com/howto/img_avatar.png"
 
     st.chat_message("user", avatar=user_image).write(prompt)
-    ctx.add_context({"role": "user", "content": prompt})
+    ctx_history.add_context({"role": "user", "content": prompt})
 
     full_response = st.chat_message("assistant").write_stream(stream)
 
@@ -38,4 +38,4 @@ def chat(ctx: CtxMgr, prompt: str, stream: Generator):
         full_response = [full_response]
 
     for response in full_response:
-        ctx.add_context({"role": "assistant", "content": response})
+        ctx_history.add_context({"role": "assistant", "content": response})

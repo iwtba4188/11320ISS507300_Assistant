@@ -41,3 +41,6 @@ class CtxMgr:
         Retrieve the current context from st.session_state[self.ctx_name].
         """
         return list(st.session_state[self._name])
+
+    def empty(self) -> bool:
+        return len(st.session_state[self._name]) == 0
