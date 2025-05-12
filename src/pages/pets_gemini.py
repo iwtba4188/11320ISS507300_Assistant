@@ -12,7 +12,11 @@ from utils.bots import (
     display_chat_history,
 )
 from utils.bots.ctx_mgr import CtxMgr
-from utils.function_call import get_awaiting_adoption_pet_info
+from utils.function_call import (
+    cawling_dcard_urls,
+    crawling_dcard_article_content,
+    get_awaiting_adoption_pet_info,
+)
 from utils.helpers import (
     error_badge,
     info_badge,
@@ -58,7 +62,11 @@ def init_gemini_api_config() -> dict:
     system_prompt = read_file_content("./src/static/system_prompt.txt")
 
     model = "gemini-2.5-flash-preview-04-17"
-    tools = [get_awaiting_adoption_pet_info]
+    tools = [
+        get_awaiting_adoption_pet_info,
+        cawling_dcard_urls,
+        crawling_dcard_article_content,
+    ]
 
     generate_content_config = types.GenerateContentConfig(
         temperature=0,
@@ -123,6 +131,14 @@ def execute_func_call(func_call: types.FunctionCall) -> dict:
         if func_call.name == "get_awaiting_adoption_pet_info":
             func_call_result["status"] = "success"
             func_call_result["result"] = get_awaiting_adoption_pet_info()
+        elif func_call.name == "cawling_dcard_urls":
+            func_call_result["status"] = "success"
+            func_call_result["result"] = cawling_dcard_urls(**func_call.args)
+        elif func_call.name == "crawling_contents":
+            func_call_result["status"] = "success"
+            func_call_result["result"] = crawling_dcard_article_content(
+                **func_call.args
+            )
         # XXX: Extension point for other function calls
         else:
             raise ValueError(f"Unknown function call: {func_call.name}")
@@ -171,6 +187,7 @@ def func_call_result_badge_stream(func_call_result: dict) -> Generator:
     )
 
     if func_call_result["status"] == "error":
+        print(f"Error in function call: {func_call_result['result']}")
         yield from str_stream(error_badge(func_call_msg))
     else:
         yield from str_stream(success_badge(func_call_msg))
@@ -241,6 +258,29 @@ def gemini_response_stream() -> Generator:
         yield from gemini_function_calling(function_calls)
 
 
+def chat_init(stream: Generator) -> None:
+    ctx_content.add_context(
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(
+                    text=f"Introduce yourself briefly, including your role and what you can do. Language: {i18n.lang}."
+                )
+            ],
+        )
+    )
+
+    full_response = st.chat_message("assistant").write_stream(stream)
+
+    if isinstance(full_response, str):
+        full_response = [full_response]
+
+    for response in full_response:
+        ctx_history.add_context({"role": "assistant", "content": response})
+
+    ctx_content.clear_context()
+
+
 def chat_bot():
     """
     Render the chat interface and process user input in Streamlit.
@@ -251,7 +291,10 @@ def chat_bot():
     """
     chat_container = st.container(border=True)
     with chat_container:
-        display_chat_history(ctx_history)
+        if ctx_history.empty():
+            chat_init(gemini_response_stream())
+        else:
+            display_chat_history(ctx_history)
 
     if prompt := st.chat_input(placeholder=input_field_placeholder, key="chat_bot"):
         ctx_content.add_context(
