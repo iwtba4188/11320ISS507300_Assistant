@@ -1,43 +1,14 @@
-import json
 import random
 import time
 from collections import defaultdict
 
-import pandas as pd
-from matplotlib.figure import Figure
 from selenium.webdriver.common.by import By
 from seleniumbase import SB, Driver
-
-from utils.helpers import mock_return, read_file_content
-
-from .wordcloud import build_word_freq_dict, test_md_draw_wordcloud
 
 # Dcard URL for "送養" topic
 ADOPTION_TAG_URL = "https://www.dcard.tw/topics/%E9%80%81%E9%A4%8A"
 
 
-def get_awaiting_adoption_pet_info() -> dict:
-    """
-    Provides information on pets that are currently seeking adoption.
-
-    Returns:
-        dict: A dictionary containing information about pets available for adoption.
-    """
-    print("get_awaiting_adoption_pet_info called!")
-    animal_info = read_file_content("./src/static/animal_info.json")
-    return json.loads(animal_info)
-
-
-def mock_crawling_dcard_urls(target_url_num: int = 10) -> list[tuple[str, str]]:
-    res = pd.read_csv("./src/static/article_contents.csv")
-    # res = pd.read_csv("../../static/article_contents.csv")
-    res = res[["title", "url"]].values.tolist()
-    res = [tuple(x) for x in res][:target_url_num]
-
-    return res
-
-
-@mock_return(result=mock_crawling_dcard_urls)
 def cawling_dcard_urls(
     # target_url: str = TARGET_URL,
     target_url_num: int = 3,
@@ -56,7 +27,7 @@ def cawling_dcard_urls(
 
     try:
         driver = Driver(uc=True, headless2=True)
-        driver.uc_open_with_reconnect(target_url, reconnect_time=3, uc_subprocess=False)
+        driver.uc_open_with_reconnect(target_url, reconnect_time=3)
         driver.save_screenshot("dcard1.png")
         article_section = driver.find_element(
             "xpath", '//*[@id="__next"]/div[2]/div[2]/div/div/div/div[2]/div/div[1]/div'
@@ -102,21 +73,6 @@ def cawling_dcard_urls(
     return url_result[:target_url_num]
 
 
-def mock_crawling_dcard_article_content(target_url: list[str]) -> list[dict]:
-    article_data = pd.read_csv("./src/static/article_contents.csv")
-    # res = pd.read_csv("../../static/article_contents.csv")
-
-    res = []
-    for url in target_url:
-        row = article_data.loc[
-            article_data["url"] == url, ["title", "author", "createdAt", "content"]
-        ].iloc[0]
-        res.append(row.to_dict())
-
-    return res
-
-
-@mock_return(result=mock_crawling_dcard_article_content)
 def crawling_dcard_article_content(target_url: list[str]) -> list[dict] | None:
     """
     Crawls the content of a specific Dcard post.
@@ -160,21 +116,6 @@ def crawling_dcard_article_content(target_url: list[str]) -> list[dict] | None:
     return results
 
 
-def content_wordcloud(content: str) -> Figure:
-    """
-    Generates a word cloud from the content of a str or a list of str.
-
-    Args:
-        content (str): The content to generate the word cloud from.
-                                    Can be a single string or a list of strings.
-
-    Returns:
-        Figure: A matplotlib figure containing the generated word cloud.
-    """
-    word_freq = build_word_freq_dict(content)
-    return test_md_draw_wordcloud(word_freq)
-
-
 def test_cawling_dcard_urls() -> None:
     with SB(uc=True, test=True, locale="en", headless=True) as sb:
         url = "https://www.dcard.tw/f/nthu/p/258754776"
@@ -196,8 +137,8 @@ if __name__ == "__main__":
     # else:
     #     print("Failed to retrieve URLs.")
 
-    mock_urls = mock_crawling_dcard_urls()
+    mock_urls = cawling_dcard_urls()
     print(f"{mock_urls=}")
 
-    mock_res = mock_crawling_dcard_article_content(target_url=mock_urls[0][1])
+    mock_res = crawling_dcard_article_content(target_url=[mock_urls[0][1]])
     print(f"{mock_res=}")

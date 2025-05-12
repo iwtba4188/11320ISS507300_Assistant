@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 
+from utils.function_call.pets import test_cawling_dcard_urls
 from utils.i18n import i18n
 
 pd.set_option("future.no_silent_downcasting", True)
@@ -164,6 +165,7 @@ def setup_sidebar() -> None:
 
 
 if __name__ == "__main__":
+    test_cawling_dcard_urls()
     setup_lang()
     setup_pages()
     setup_sidebar()
