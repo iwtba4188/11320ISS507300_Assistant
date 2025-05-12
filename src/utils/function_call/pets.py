@@ -2,15 +2,15 @@ import json
 import random
 import time
 from collections import defaultdict
+from typing import Literal
 
 import pandas as pd
-from matplotlib.figure import Figure
 from selenium.webdriver.common.by import By
 from seleniumbase import SB, Driver
 
 from utils.helpers import mock_return, read_file_content
 
-from .wordcloud import build_word_freq_dict, test_md_draw_wordcloud
+from .wordcloud import build_word_freq_dict, draw_wordcloud_cat, test_md_draw_wordcloud
 
 # Dcard URL for "送養" topic
 ADOPTION_TAG_URL = "https://www.dcard.tw/topics/%E9%80%81%E9%A4%8A"
@@ -160,16 +160,18 @@ def crawling_dcard_article_content(target_url: list[str]) -> list[dict] | None:
     return results
 
 
-def content_wordcloud() -> Figure:
+def content_wordcloud(mode: Literal["cat", "normal", None]) -> str:
     """
     Generates a word cloud from the content of a str or a list of str.
 
     Args:
-        content (str): The content to generate the word cloud from.
-                                    Can be a single string or a list of strings.
+        mode (Literal["cat", "normal", None]): The mode for generating the word cloud.
+                                                "cat" for cat-shaped word cloud,
+                                                "normal" for normal word cloud,
+                                                None for default behavior.
 
     Returns:
-        Figure: A matplotlib figure containing the generated word cloud.
+        str: A html image string of the generated word cloud.
     """
     urls = cawling_dcard_urls()
 
@@ -178,7 +180,13 @@ def content_wordcloud() -> Figure:
         contents.append(crawling_dcard_article_content(url[1])["content"])
 
     word_freq = build_word_freq_dict(contents)
-    return test_md_draw_wordcloud(word_freq)
+
+    if mode == "cat":
+        res = draw_wordcloud_cat(word_freq)
+    elif mode == "normal" or mode is None:
+        res = test_md_draw_wordcloud(word_freq)
+
+    return res
 
 
 def test_cawling_dcard_urls() -> None:

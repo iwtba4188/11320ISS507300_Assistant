@@ -140,7 +140,7 @@ def draw_wordcloud_cat(word_freq: dict) -> str:
         font_path="./src/static/font/Noto_Sans_TC/static/NotoSansTC-Regular.ttf",
         max_words=2000,
         mask=cat_mask,
-        max_font_size=140,  # Increase max font size for higher resolution
+        max_font_size=400,  # Increase max font size for higher resolution
         random_state=42,
         relative_scaling=0,
         background_color="white",  # Set background to white
@@ -170,14 +170,14 @@ def draw_wordcloud_cat(word_freq: dict) -> str:
     plt.imshow(output_image, interpolation="bilinear")
     plt.axis("off")
 
-    # figfile = BytesIO()
-    # plt.savefig(figfile, format="png")
-    # figfile.seek(0)
-    # figdata_png = base64.b64encode(figfile.getvalue())  # 将图片转为base64
-    # figdata_str = str(figdata_png, "utf-8")  # 提取base64的字符串，不然是b'xxx'
+    figfile = BytesIO()
+    plt.savefig(figfile, format="png")
+    figfile.seek(0)
+    figdata_png = base64.b64encode(figfile.getvalue())  # 将图片转为base64
+    figdata_str = str(figdata_png, "utf-8")  # 提取base64的字符串，不然是b'xxx'
 
     # return f'<img src="data:image/png;base64,{figdata_str}"/>'
-    return plt.gcf()
+    return f'<img src="data:image/png;base64,{figdata_str}"/>'
 
 
 def draw_wordcloud(word_freq: dict) -> Figure:
