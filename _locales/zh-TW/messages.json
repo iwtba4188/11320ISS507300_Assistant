@@ -55,7 +55,7 @@
         "message": "成功呼叫函式 `{func_name}`！",
         "description": "The badge of function call success in pet consultant page"
     },
-    "pets.chat.badge.func_call_failure": {
+    "pets.chat.badge.func_call_error": {
         "message": "呼叫函式 `{func_name}` 失敗！！！",
         "description": "The badge of function call failure in pet consultant page"
     },
