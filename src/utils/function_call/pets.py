@@ -4,10 +4,13 @@ import time
 from collections import defaultdict
 
 import pandas as pd
+from matplotlib.figure import Figure
 from selenium.webdriver.common.by import By
 from seleniumbase import SB, Driver
 
 from utils.helpers import mock_return, read_file_content
+
+from .wordcloud import build_word_freq_dict, test_md_draw_wordcloud
 
 # Dcard URL for "送養" topic
 ADOPTION_TAG_URL = "https://www.dcard.tw/topics/%E9%80%81%E9%A4%8A"
@@ -37,13 +40,13 @@ def mock_crawling_dcard_urls(target_url_num: int = 10) -> list[tuple[str, str]]:
 @mock_return(result=mock_crawling_dcard_urls)
 def cawling_dcard_urls(
     # target_url: str = TARGET_URL,
-    target_url_num: int = 10,
+    target_url_num: int = 3,
 ) -> list[tuple[str, str]] | None:
     """
     Crawls the urls in Dcard for posts related to pet adoption.
 
     Args:
-        target_url_num (int): The number of URLs to retrieve. Default is 10.
+        target_url_num (int): The number of URLs to retrieve. Default is 3.
 
     Returns:
         list[tuple[str, str]] | None: A list of tuples containing the title and URL of each post.
@@ -99,54 +102,77 @@ def cawling_dcard_urls(
     return url_result[:target_url_num]
 
 
-def mock_crawling_dcard_article_content(target_url: str) -> dict:
-    res = pd.read_csv("./src/static/article_contents.csv")
+def mock_crawling_dcard_article_content(target_url: list[str]) -> list[dict]:
+    article_data = pd.read_csv("./src/static/article_contents.csv")
     # res = pd.read_csv("../../static/article_contents.csv")
-    row = res.loc[
-        res["url"] == target_url, ["title", "author", "createdAt", "content"]
-    ].iloc[0]
-    res = row.to_dict()
+
+    res = []
+    for url in target_url:
+        row = article_data.loc[
+            article_data["url"] == url, ["title", "author", "createdAt", "content"]
+        ].iloc[0]
+        res.append(row.to_dict())
 
     return res
 
 
 @mock_return(result=mock_crawling_dcard_article_content)
-def crawling_dcard_article_content(target_url: str) -> dict | None:
+def crawling_dcard_article_content(target_url: list[str]) -> list[dict] | None:
     """
     Crawls the content of a specific Dcard post.
 
     Args:
-        target_url (str): The URL of the Dcard post to crawl.
+        target_url (list[str]): The URL of the Dcard post to crawl.
 
     Returns:
-        dict | None: A dictionary containing the post's title, author, creation date,
+        list[dict] | None: A dictionary containing the post's title, author, creation date,
                         and content. Returns None if an error occurs.
     """
     try:
         driver = Driver(uc=True, headless=True)
-        driver.uc_open_with_reconnect(target_url, reconnect_time=3)
     except Exception as e:
         driver.save_screenshot("dcard.png")
         raise RuntimeError(f"Error initializing Chrome driver: {e}") from e
 
-    result = defaultdict(str)
-    result["url"] = target_url
+    results = []
+    for url in target_url:
+        driver.uc_open_with_reconnect(url, reconnect_time=3)
+        result = defaultdict(str)
+        result["url"] = target_url
 
-    try:
-        result["title"] = driver.find_element("tag name", "h1").text
-        result["author"] = driver.find_element(
-            "class name", "d_xa_2b.d_tx_2c.d_lc_1u.d_7v_5.a6buno9"
-        ).text
-        result["createdAt"] = driver.find_element("tag name", "time").get_attribute(
-            "datetime"
-        )
+        try:
+            result["title"] = driver.find_element("tag name", "h1").text
+            result["author"] = driver.find_element(
+                "class name", "d_xa_2b.d_tx_2c.d_lc_1u.d_7v_5.a6buno9"
+            ).text
+            result["createdAt"] = driver.find_element("tag name", "time").get_attribute(
+                "datetime"
+            )
 
-        content_element = driver.find_element("class name", "d_xa_34.d_xj_2v.c1ehvwc9")
-        result["content"] = content_element.text
-    except Exception as e:
-        raise RuntimeError(f"Error retrieving post content: {e}") from e
+            content_element = driver.find_element(
+                "class name", "d_xa_34.d_xj_2v.c1ehvwc9"
+            )
+            result["content"] = content_element.text
+            results.append(result)
+        except Exception as e:
+            raise RuntimeError(f"Error retrieving post content: {e}") from e
 
-    return result
+    return results
+
+
+def content_wordcloud(content: str) -> Figure:
+    """
+    Generates a word cloud from the content of a str or a list of str.
+
+    Args:
+        content (str): The content to generate the word cloud from.
+                                    Can be a single string or a list of strings.
+
+    Returns:
+        Figure: A matplotlib figure containing the generated word cloud.
+    """
+    word_freq = build_word_freq_dict(content)
+    return test_md_draw_wordcloud(word_freq)
 
 
 def test_cawling_dcard_urls() -> None:

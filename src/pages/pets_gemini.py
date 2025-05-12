@@ -14,8 +14,8 @@ from utils.bots import (
 from utils.bots.ctx_mgr import CtxMgr
 from utils.function_call import (
     cawling_dcard_urls,
+    content_wordcloud,
     crawling_dcard_article_content,
-    # get_awaiting_adoption_pet_info,
 )
 from utils.helpers import (
     error_badge,
@@ -30,7 +30,7 @@ from utils.i18n import i18n
 input_field_placeholder = i18n("pets.chat.input_placeholder")
 user_name = "Shihtl"
 ctx_history = CtxMgr("pets_gemini_history", [])
-ctx_content = CtxMgr("pets_gemini", deque(maxlen=20))
+ctx_content = CtxMgr("pets_gemini", deque(maxlen=10))
 
 
 def page_init() -> None:
@@ -62,10 +62,12 @@ def init_gemini_api_config() -> dict:
     system_prompt = read_file_content("./src/static/system_prompt.txt")
 
     model = "gemini-2.5-flash-preview-04-17"
+    # model = "gemini-2.0-flash"
     tools = [
         # get_awaiting_adoption_pet_info,
         cawling_dcard_urls,
         crawling_dcard_article_content,
+        content_wordcloud,
     ]
 
     generate_content_config = types.GenerateContentConfig(
@@ -103,6 +105,7 @@ def gemini_api_config() -> dict:
         gemini_configs: dict = st.session_state["gemini_configs"]
 
     gemini_configs["contents"] = ctx_content.get_context()
+    print(gemini_configs)
     return gemini_configs
 
 
@@ -125,6 +128,7 @@ def execute_func_call(func_call: types.FunctionCall) -> dict:
         "func_call": func_call,
         "status": "unknown",
         "result": "unknown",
+        "display_result": False,
     }
 
     try:
@@ -139,6 +143,10 @@ def execute_func_call(func_call: types.FunctionCall) -> dict:
             func_call_result["result"] = crawling_dcard_article_content(
                 **func_call.args
             )
+        elif func_call.name == "content_wordcloud":
+            func_call_result["status"] = "success"
+            func_call_result["result"] = content_wordcloud(**func_call.args)
+            func_call_result["display_result"] = True
         # XXX: Extension point for other function calls
         else:
             raise ValueError(f"Unknown function call: {func_call.name}")
@@ -192,6 +200,9 @@ def func_call_result_badge_stream(func_call_result: dict) -> Generator:
     else:
         yield from str_stream(success_badge(func_call_msg))
 
+    if func_call_result["display_result"]:
+        yield func_call_result["result"]
+
 
 def gemini_function_calling(
     function_calls: list[types.FunctionCall],
@@ -222,6 +233,19 @@ def gemini_function_calling(
     yield from str_stream(info_badge(think_again_msg))
 
     yield from gemini_response_stream()
+
+
+def test_wordcloud():
+    urls = cawling_dcard_urls()
+
+    # collect first 10 urls' content
+    contents = []
+    for url in urls[:10]:
+        contents.append(crawling_dcard_article_content(url[1])["content"])
+
+    with st.chat_message("assistant"):
+        # st.pyplot(content_wordcloud(contents))
+        st.markdown(content_wordcloud(contents), unsafe_allow_html=True)
 
 
 def gemini_response_stream() -> Generator:
