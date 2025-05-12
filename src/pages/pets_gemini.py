@@ -235,17 +235,17 @@ def gemini_function_calling(
     yield from gemini_response_stream()
 
 
-def test_wordcloud():
-    urls = cawling_dcard_urls()
+# def test_wordcloud():
+#     urls = cawling_dcard_urls()
 
-    # collect first 10 urls' content
-    contents = []
-    for url in urls[:10]:
-        contents.append(crawling_dcard_article_content(url[1])["content"])
+#     # collect first 10 urls' content
+#     contents = []
+#     for url in urls[:10]:
+#         contents.append(crawling_dcard_article_content(url[1])["content"])
 
-    with st.chat_message("assistant"):
-        # st.pyplot(content_wordcloud(contents))
-        st.markdown(content_wordcloud(contents), unsafe_allow_html=True)
+#     with st.chat_message("assistant"):
+#         # st.pyplot(content_wordcloud(contents))
+#         st.markdown(content_wordcloud(contents), unsafe_allow_html=True)
 
 
 def gemini_response_stream() -> Generator:

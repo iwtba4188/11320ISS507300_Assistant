@@ -160,7 +160,7 @@ def crawling_dcard_article_content(target_url: list[str]) -> list[dict] | None:
     return results
 
 
-def content_wordcloud(content: str) -> Figure:
+def content_wordcloud() -> Figure:
     """
     Generates a word cloud from the content of a str or a list of str.
 
@@ -171,7 +171,13 @@ def content_wordcloud(content: str) -> Figure:
     Returns:
         Figure: A matplotlib figure containing the generated word cloud.
     """
-    word_freq = build_word_freq_dict(content)
+    urls = cawling_dcard_urls()
+
+    contents = []
+    for url in urls[:10]:
+        contents.append(crawling_dcard_article_content(url[1])["content"])
+
+    word_freq = build_word_freq_dict(contents)
     return test_md_draw_wordcloud(word_freq)
 
 
