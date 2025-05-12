@@ -3,10 +3,11 @@ import random
 import time
 from collections import defaultdict
 
+import pandas as pd
 from selenium.webdriver.common.by import By
 from seleniumbase import SB, Driver
 
-from utils.helpers import read_file_content
+from utils.helpers import mock_return, read_file_content
 
 # Dcard URL for "送養" topic
 ADOPTION_TAG_URL = "https://www.dcard.tw/topics/%E9%80%81%E9%A4%8A"
@@ -24,6 +25,16 @@ def get_awaiting_adoption_pet_info() -> dict:
     return json.loads(animal_info)
 
 
+def mock_crawling_dcard_urls(target_url_num: int = 10) -> list[tuple[str, str]]:
+    res = pd.read_csv("./src/static/article_contents.csv")
+    # res = pd.read_csv("../../static/article_contents.csv")
+    res = res[["title", "url"]].values.tolist()
+    res = [tuple(x) for x in res][:target_url_num]
+
+    return res
+
+
+@mock_return(result=mock_crawling_dcard_urls)
 def cawling_dcard_urls(
     # target_url: str = TARGET_URL,
     target_url_num: int = 10,
@@ -88,6 +99,18 @@ def cawling_dcard_urls(
     return url_result[:target_url_num]
 
 
+def mock_crawling_dcard_article_content(target_url: str) -> dict:
+    res = pd.read_csv("./src/static/article_contents.csv")
+    # res = pd.read_csv("../../static/article_contents.csv")
+    row = res.loc[
+        res["url"] == target_url, ["title", "author", "createdAt", "content"]
+    ].iloc[0]
+    res = row.to_dict()
+
+    return res
+
+
+@mock_return(result=mock_crawling_dcard_article_content)
 def crawling_dcard_article_content(target_url: str) -> dict | None:
     """
     Crawls the content of a specific Dcard post.
@@ -137,12 +160,18 @@ def test_cawling_dcard_urls() -> None:
 
 if __name__ == "__main__":
     # Example usage
-    urls = cawling_dcard_urls()
-    if urls:
-        for title, url in urls:
-            print(f"Title: {title}, URL: {url}")
+    # urls = cawling_dcard_urls()
+    # if urls:
+    #     for title, url in urls:
+    #         print(f"Title: {title}, URL: {url}")
 
-        res = crawling_dcard_article_content(urls[0][1])
-        print(res)
-    else:
-        print("Failed to retrieve URLs.")
+    #     res = crawling_dcard_article_content(urls[0][1])
+    #     print(res)
+    # else:
+    #     print("Failed to retrieve URLs.")
+
+    mock_urls = mock_crawling_dcard_urls()
+    print(f"{mock_urls=}")
+
+    mock_res = mock_crawling_dcard_article_content(target_url=mock_urls[0][1])
+    print(f"{mock_res=}")

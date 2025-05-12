@@ -1,5 +1,5 @@
 import time
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 
 import streamlit as st
 
@@ -125,3 +125,17 @@ color_map = {
     18: "khaki",
     19: "plum",
 }
+
+
+# [Decorators]
+def mock_return(result):
+    def Inner(func):
+        def wrapper(*args, **kwargs):
+            if isinstance(result, Callable):
+                return result(*args, **kwargs)
+            else:
+                return result
+
+        return wrapper
+
+    return Inner

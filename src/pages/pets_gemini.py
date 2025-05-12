@@ -15,7 +15,7 @@ from utils.bots.ctx_mgr import CtxMgr
 from utils.function_call import (
     cawling_dcard_urls,
     crawling_dcard_article_content,
-    get_awaiting_adoption_pet_info,
+    # get_awaiting_adoption_pet_info,
 )
 from utils.helpers import (
     error_badge,
@@ -63,7 +63,7 @@ def init_gemini_api_config() -> dict:
 
     model = "gemini-2.5-flash-preview-04-17"
     tools = [
-        get_awaiting_adoption_pet_info,
+        # get_awaiting_adoption_pet_info,
         cawling_dcard_urls,
         crawling_dcard_article_content,
     ]
@@ -128,13 +128,13 @@ def execute_func_call(func_call: types.FunctionCall) -> dict:
     }
 
     try:
-        if func_call.name == "get_awaiting_adoption_pet_info":
-            func_call_result["status"] = "success"
-            func_call_result["result"] = get_awaiting_adoption_pet_info()
-        elif func_call.name == "cawling_dcard_urls":
+        # if func_call.name == "get_awaiting_adoption_pet_info":
+        #     func_call_result["status"] = "success"
+        #     func_call_result["result"] = get_awaiting_adoption_pet_info()
+        if func_call.name == "cawling_dcard_urls":
             func_call_result["status"] = "success"
             func_call_result["result"] = cawling_dcard_urls(**func_call.args)
-        elif func_call.name == "crawling_contents":
+        elif func_call.name == "crawling_dcard_article_content":
             func_call_result["status"] = "success"
             func_call_result["result"] = crawling_dcard_article_content(
                 **func_call.args
