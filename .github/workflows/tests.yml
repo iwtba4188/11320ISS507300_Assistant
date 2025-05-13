@@ -1,5 +1,7 @@
 # test workflow from https://github.com/tiangolo/fastapi/blob/master/.github/workflows/test.yml
 name: Test
+permissions:
+  contents: read
 
 on:
   push:
