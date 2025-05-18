@@ -256,6 +256,7 @@ def gemini_response_stream() -> Generator:
     Yields:
         str: Characters from the model's response and streams function call handling if needed.
     """
+    #connect to google server - gemini
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
     function_calls = []
