@@ -201,7 +201,7 @@ def func_call_result_badge_stream(func_call_result: dict) -> Generator:
         yield from str_stream(success_badge(func_call_msg))
 
     if func_call_result["display_result"]:
-        yield func_call_result["result"]
+        st.markdown(func_call_result["result"], unsafe_allow_html=True)
 
 
 def gemini_function_calling(

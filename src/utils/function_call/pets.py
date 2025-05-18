@@ -2,7 +2,6 @@ import json
 import random
 import time
 from collections import defaultdict
-from typing import Literal
 
 import pandas as pd
 from selenium.webdriver.common.by import By
@@ -160,7 +159,7 @@ def crawling_dcard_article_content(target_url: list[str]) -> list[dict] | None:
     return results
 
 
-def content_wordcloud(mode: Literal["cat", "normal", None]) -> str:
+def content_wordcloud(contents: list[str]) -> str:
     """
     Generates a word cloud from the content of a str or a list of str.
 
@@ -173,11 +172,12 @@ def content_wordcloud(mode: Literal["cat", "normal", None]) -> str:
     Returns:
         str: A html image string of the generated word cloud.
     """
-    urls = cawling_dcard_urls()
+    mode = None
+    # urls = cawling_dcard_urls()
 
-    contents = []
-    for url in urls[:10]:
-        contents.append(crawling_dcard_article_content(url[1])["content"])
+    # contents = []
+    # for url in urls[:10]:
+    #     contents.append(crawling_dcard_article_content(url[1])["content"])
 
     word_freq = build_word_freq_dict(contents)
 
