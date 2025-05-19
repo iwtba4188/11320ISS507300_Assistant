@@ -85,16 +85,6 @@ class st_spinner:
 # s.end()
 
 
-def draw_image(iamge_html: str) -> None:
-    """
-    Display an image in Streamlit.
-
-    Arguments:
-        iamge_html (str): HTML string containing the image to be displayed
-    """
-    st.markdown(iamge_html, unsafe_allow_html=True)
-
-
 # [IO]
 def str_stream(text: str) -> Generator:
     """

@@ -3,15 +3,18 @@ import re
 from collections import Counter
 from io import BytesIO
 
-import matplotlib.colors as mcolors
+# import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
-import numpy as np
+
+# import numpy as np
 import torch
 from ckip_transformers.nlp import CkipPosTagger, CkipWordSegmenter
-from matplotlib.figure import Figure
-from PIL import Image
-from scipy.ndimage import gaussian_gradient_magnitude
-from wordcloud import ImageColorGenerator, WordCloud
+
+# from matplotlib.figure import Figure
+# from PIL import Image
+# from scipy.ndimage import gaussian_gradient_magnitude
+# from wordcloud import ImageColorGenerator, WordCloud
+from wordcloud import WordCloud
 
 
 def build_word_freq_dict(content: str | list[str]) -> dict:
@@ -72,133 +75,133 @@ def build_word_freq_dict(content: str | list[str]) -> dict:
     return top_dict
 
 
-def draw_wordcloud_cat(word_freq: dict) -> str:
-    # Load the cat image
-    cat_image_path = "./src/static/chatgpt_cat_2.png"
-    cat_image = np.array(Image.open(cat_image_path))
+# def draw_wordcloud_cat(word_freq: dict) -> str:
+#     # Load the cat image
+#     cat_image_path = "./src/static/chatgpt_cat_2.png"
+#     cat_image = np.array(Image.open(cat_image_path))
 
-    # Subsample the image for faster processing
-    cat_image = cat_image[::1, ::1]  # No subsampling to retain full resolution
+#     # Subsample the image for faster processing
+#     cat_image = cat_image[::1, ::1]  # No subsampling to retain full resolution
 
-    # Scale up the cat image by 3x
-    cat_image = np.kron(cat_image, np.ones((3, 3, 1)))
+#     # Scale up the cat image by 3x
+#     cat_image = np.kron(cat_image, np.ones((3, 3, 1)))
 
-    # Create a mask from the cat image
-    cat_mask = cat_image.copy()
-    cat_mask[cat_mask.sum(axis=2) == 0] = 255
+#     # Create a mask from the cat image
+#     cat_mask = cat_image.copy()
+#     cat_mask[cat_mask.sum(axis=2) == 0] = 255
 
-    # Perform edge detection to enhance boundaries
-    edges = np.mean(
-        [gaussian_gradient_magnitude(cat_image[:, :, i] / 255.0, 2) for i in range(3)],
-        axis=0,
-    )
-    cat_mask[edges > 0.08] = 255
+#     # Perform edge detection to enhance boundaries
+#     edges = np.mean(
+#         [gaussian_gradient_magnitude(cat_image[:, :, i] / 255.0, 2) for i in range(3)],
+#         axis=0,
+#     )
+#     cat_mask[edges > 0.08] = 255
 
-    # Increase saturation for better color vibrancy
-    cat_image_hsv = mcolors.rgb_to_hsv(cat_image / 255.0)
-    cat_image_hsv[:, :, 1] = np.clip(
-        cat_image_hsv[:, :, 1] * 1.8, 0, 1
-    )  # Increase saturation
-    cat_image_hsv[:, :, 2] = np.clip(
-        cat_image_hsv[:, :, 2] * 1.5, 0, 1
-    )  # Slightly increase brightness
-    cat_image = (mcolors.hsv_to_rgb(cat_image_hsv) * 255).astype(np.uint8)
+#     # Increase saturation for better color vibrancy
+#     cat_image_hsv = mcolors.rgb_to_hsv(cat_image / 255.0)
+#     cat_image_hsv[:, :, 1] = np.clip(
+#         cat_image_hsv[:, :, 1] * 1.8, 0, 1
+#     )  # Increase saturation
+#     cat_image_hsv[:, :, 2] = np.clip(
+#         cat_image_hsv[:, :, 2] * 1.5, 0, 1
+#     )  # Slightly increase brightness
+#     cat_image = (mcolors.hsv_to_rgb(cat_image_hsv) * 255).astype(np.uint8)
 
-    # Further enhance colors for deep blue and purple optimization
-    cat_image_hsv = mcolors.rgb_to_hsv(cat_image / 255.0)
+#     # Further enhance colors for deep blue and purple optimization
+#     cat_image_hsv = mcolors.rgb_to_hsv(cat_image / 255.0)
 
-    # Increase saturation and brightness for deep blue and purple hues
-    # hue = cat_image_hsv[:, :, 0]
-    saturation = cat_image_hsv[:, :, 1]
-    value = cat_image_hsv[:, :, 2]
+#     # Increase saturation and brightness for deep blue and purple hues
+#     # hue = cat_image_hsv[:, :, 0]
+#     saturation = cat_image_hsv[:, :, 1]
+#     value = cat_image_hsv[:, :, 2]
 
-    # Identify deep blue and purple hues (hue range for blue and purple)
-    # blue_purple_mask = (hue > 0.5) & (hue < 0.8)
-    # saturation[blue_purple_mask] = np.clip(saturation[blue_purple_mask] * 2, 0, 1)
-    # value[blue_purple_mask] = np.clip(value[blue_purple_mask] * 2, 0, 1)
+#     # Identify deep blue and purple hues (hue range for blue and purple)
+#     # blue_purple_mask = (hue > 0.5) & (hue < 0.8)
+#     # saturation[blue_purple_mask] = np.clip(saturation[blue_purple_mask] * 2, 0, 1)
+#     # value[blue_purple_mask] = np.clip(value[blue_purple_mask] * 2, 0, 1)
 
-    # Apply the adjustments back
-    cat_image_hsv[:, :, 1] = saturation
-    cat_image_hsv[:, :, 2] = value
-    cat_image = (mcolors.hsv_to_rgb(cat_image_hsv) * 255).astype(np.uint8)
+#     # Apply the adjustments back
+#     cat_image_hsv[:, :, 1] = saturation
+#     cat_image_hsv[:, :, 2] = value
+#     cat_image = (mcolors.hsv_to_rgb(cat_image_hsv) * 255).astype(np.uint8)
 
-    # Set non-cat areas to pure white
-    cat_image_hsv = mcolors.rgb_to_hsv(cat_image / 255.0)
+#     # Set non-cat areas to pure white
+#     cat_image_hsv = mcolors.rgb_to_hsv(cat_image / 255.0)
 
-    # Identify non-cat areas (where the mask is white)
-    non_cat_mask = cat_mask.sum(axis=2) == 255 * 3
+#     # Identify non-cat areas (where the mask is white)
+#     non_cat_mask = cat_mask.sum(axis=2) == 255 * 3
 
-    # Set saturation and brightness to maximum for non-cat areas
-    cat_image_hsv[non_cat_mask, 1] = 0  # No saturation (pure white)
-    cat_image_hsv[non_cat_mask, 2] = 1  # Full brightness (pure white)
+#     # Set saturation and brightness to maximum for non-cat areas
+#     cat_image_hsv[non_cat_mask, 1] = 0  # No saturation (pure white)
+#     cat_image_hsv[non_cat_mask, 2] = 1  # Full brightness (pure white)
 
-    # Convert back to RGB
-    cat_image = (mcolors.hsv_to_rgb(cat_image_hsv) * 255).astype(np.uint8)
+#     # Convert back to RGB
+#     cat_image = (mcolors.hsv_to_rgb(cat_image_hsv) * 255).astype(np.uint8)
 
-    # Adjust the WordCloud settings for a black background and optimized colors
-    wc = WordCloud(
-        font_path="./src/static/font/Noto_Sans_TC/static/NotoSansTC-Regular.ttf",
-        max_words=2000,
-        mask=cat_mask,
-        max_font_size=400,  # Increase max font size for higher resolution
-        random_state=42,
-        relative_scaling=0,
-        background_color="white",  # Set background to white
-        contour_width=1,
-        width=cat_image.shape[1] * 3,  # Increase width for higher resolution
-        height=cat_image.shape[0] * 3,  # Increase height for higher resolution
-    )
+#     # Adjust the WordCloud settings for a black background and optimized colors
+#     wc = WordCloud(
+#         font_path="./src/static/font/Noto_Sans_TC/static/NotoSansTC-Regular.ttf",
+#         max_words=2000,
+#         mask=cat_mask,
+#         max_font_size=400,  # Increase max font size for higher resolution
+#         random_state=42,
+#         relative_scaling=0,
+#         background_color="white",  # Set background to white
+#         contour_width=1,
+#         width=cat_image.shape[1] * 3,  # Increase width for higher resolution
+#         height=cat_image.shape[0] * 3,  # Increase height for higher resolution
+#     )
 
-    # Generate the word cloud from frequencies
-    wc.generate_from_frequencies(word_freq)
+#     # Generate the word cloud from frequencies
+#     wc.generate_from_frequencies(word_freq)
 
-    # Recolor the word cloud based on the optimized cat image
-    image_colors = ImageColorGenerator(cat_image)
-    wc.recolor(color_func=image_colors)
+#     # Recolor the word cloud based on the optimized cat image
+#     image_colors = ImageColorGenerator(cat_image)
+#     wc.recolor(color_func=image_colors)
 
-    # After generating the word cloud, fill non-mask areas with white
-    output_image = np.array(wc.to_image())
+#     # After generating the word cloud, fill non-mask areas with white
+#     output_image = np.array(wc.to_image())
 
-    # Identify non-mask areas (where the mask is white)
-    non_mask_areas = cat_mask.sum(axis=2) == 255 * 3
+#     # Identify non-mask areas (where the mask is white)
+#     non_mask_areas = cat_mask.sum(axis=2) == 255 * 3
 
-    # Set non-mask areas to white in the output image
-    output_image[non_mask_areas] = [255, 255, 255]
+#     # Set non-mask areas to white in the output image
+#     output_image[non_mask_areas] = [255, 255, 255]
 
-    # Display the word cloud
-    plt.figure(figsize=(16, 9))
-    plt.imshow(output_image, interpolation="bilinear")
-    plt.axis("off")
+#     # Display the word cloud
+#     plt.figure(figsize=(16, 9))
+#     plt.imshow(output_image, interpolation="bilinear")
+#     plt.axis("off")
 
-    figfile = BytesIO()
-    plt.savefig(figfile, format="png")
-    figfile.seek(0)
-    figdata_png = base64.b64encode(figfile.getvalue())  # 将图片转为base64
-    figdata_str = str(figdata_png, "utf-8")  # 提取base64的字符串，不然是b'xxx'
+#     figfile = BytesIO()
+#     plt.savefig(figfile, format="png")
+#     figfile.seek(0)
+#     figdata_png = base64.b64encode(figfile.getvalue())  # 将图片转为base64
+#     figdata_str = str(figdata_png, "utf-8")  # 提取base64的字符串，不然是b'xxx'
 
-    # return f'<img src="data:image/png;base64,{figdata_str}"/>'
-    return f'<img src="data:image/png;base64,{figdata_str}"/>'
+#     # return f'<img src="data:image/png;base64,{figdata_str}"/>'
+#     return f'<img src="data:image/png;base64,{figdata_str}"/>'
 
 
-def draw_wordcloud(word_freq: dict) -> Figure:
-    wordcloud = WordCloud(
-        font_path="./src/static/font/Noto_Sans_TC/static/NotoSansTC-Regular.ttf",
-        width=1600,
-        height=800,
-        background_color="white",
-        max_words=150,
-        scale=2,
-        max_font_size=400,
-        prefer_horizontal=0.7,
-        collocations=False,
-    ).generate_from_frequencies(word_freq)
+# def draw_wordcloud(word_freq: dict) -> Figure:
+#     wordcloud = WordCloud(
+#         font_path="./src/static/font/Noto_Sans_TC/static/NotoSansTC-Regular.ttf",
+#         width=1600,
+#         height=800,
+#         background_color="white",
+#         max_words=150,
+#         scale=2,
+#         max_font_size=400,
+#         prefer_horizontal=0.7,
+#         collocations=False,
+#     ).generate_from_frequencies(word_freq)
 
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    plt.tight_layout(pad=0)
+#     plt.figure(figsize=(10, 5))
+#     plt.imshow(wordcloud, interpolation="bilinear")
+#     plt.axis("off")
+#     plt.tight_layout(pad=0)
 
-    return plt.gcf()
+#     return plt.gcf()
 
 
 def test_md_draw_wordcloud(word_freq: dict) -> str:
@@ -225,4 +228,4 @@ def test_md_draw_wordcloud(word_freq: dict) -> str:
     figdata_png = base64.b64encode(figfile.getvalue())  # 将图片转为base64
     figdata_str = str(figdata_png, "utf-8")  # 提取base64的字符串，不然是b'xxx'
 
-    return f'<img src="data:image/png;base64,{figdata_str}"/>'
+    return f'<img class="wordcloud" src="data:image/png;base64,{figdata_str}"/>'

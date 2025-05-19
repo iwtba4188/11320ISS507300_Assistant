@@ -17,7 +17,6 @@ from utils.function_call import (
     mock_crawling_dcard_urls,
 )
 from utils.helpers import (
-    draw_image,
     error_badge,
     info_badge,
     read_file_content,
@@ -42,6 +41,10 @@ def page_init() -> None:
         """<style>
     div.stSpinner > div {
         padding-left: 55px;
+    }
+    img.wordcloud {
+        padding-left: 55px;
+        padding-bottom: 35px;
     }
 </style>""",
         unsafe_allow_html=True,
@@ -95,7 +98,6 @@ def init_agents() -> None:
                 mock_crawling_dcard_urls,
                 mock_crawling_dcard_article_content,
                 content_wordcloud,
-                draw_image,
                 AgentTool(agent=st.session_state.budget_assistant),
                 AgentTool(agent=st.session_state.careguide_assistant),
                 AgentTool(agent=st.session_state.match_maker_assistant),
@@ -156,6 +158,9 @@ async def autogen_response_stream(task: str):
                             )
                         )
                     yield record_then_yield(badge_str)
+
+                    if result.name == "content_wordcloud":
+                        st.markdown(result.content, unsafe_allow_html=True)
             case _:
                 pass
 

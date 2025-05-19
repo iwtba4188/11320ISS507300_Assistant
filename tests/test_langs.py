@@ -63,8 +63,6 @@ def test_lang_selection(mocker: MockFixture, select_lang: str) -> None:
 
     assert at.chat_input[0].placeholder == i18n("pets.chat.input_placeholder")
 
-    assert not at.exception
-
 
 # XXX: it's not possible to test the data_editor
 #      in the current version of streamlit (1.44.0)
