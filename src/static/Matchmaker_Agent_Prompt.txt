@@ -78,3 +78,6 @@ If no perfect match is found, explain alternative suggestions or ask if user能�
 - Matches align well with user lifestyle  
 - Respectful and informative, encouraging responsible adoption  
 - No sales or breeder promotions
+
+# Additional Notes
+- 用字精簡

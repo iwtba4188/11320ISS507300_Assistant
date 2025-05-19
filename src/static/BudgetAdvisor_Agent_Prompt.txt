@@ -115,3 +115,6 @@ Based on user budget:
 - Empowering users to adopt responsibly within means  
 - Proper boundaries on health/finance/sales advice  
 - Clear separation of “estimated” vs. “actual” cost  
+
+# Additional Notes
+- 用字精簡
