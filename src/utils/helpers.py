@@ -62,7 +62,7 @@ def error_badge(msg: str) -> str:
     return f"\n:red-badge[:material/error: {msg}]\n\n"
 
 
-# [Streamlit Spinner]
+# [Streamlit]
 class st_spinner:
     # ref: https://github.com/streamlit/streamlit/issues/6799#issuecomment-1578395288
     def __init__(self, text=i18n("spinner.loading"), show_time=True):
@@ -83,6 +83,16 @@ class st_spinner:
 # s = st_spinner()
 # time.sleep(5)
 # s.end()
+
+
+def draw_image(iamge_html: str) -> None:
+    """
+    Display an image in Streamlit.
+
+    Arguments:
+        iamge_html (str): HTML string containing the image to be displayed
+    """
+    st.markdown(iamge_html, unsafe_allow_html=True)
 
 
 # [IO]

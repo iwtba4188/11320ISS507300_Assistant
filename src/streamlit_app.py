@@ -63,6 +63,10 @@ def setup_pages() -> None:
                 "pages/pets_gemini.py",
                 title=i18n("sidebar.page_label.pets.chat"),
             ),
+            st.Page(
+                "pages/pets_autogen.py",
+                title=i18n("sidebar.page_label.pets.autogen"),
+            ),
         ],
         i18n("sidebar.section_label.week10"): [
             st.Page(

@@ -44,7 +44,7 @@
         "description": "The page title in pet consultant page"
     },
     "pets.chat.spinner.func_call_text": {
-        "message": "正在呼叫 {func_call_name}...",
+        "message": "正在呼叫 `{func_call_name}`...",
         "description": "The loading text in pet consultant page"
     },
     "pets.chat.spinner.gemini_response": {
@@ -146,5 +146,9 @@
     "sidebar.page_label.home" : {
         "message": "首頁",
         "description": "Label of the home page"
+    },
+    "sidebar.page_label.pets.autogen": {
+        "message": "Autogen 版本 (推薦)",
+        "description": "Label of the pet auto-generate page"
     }
 }
