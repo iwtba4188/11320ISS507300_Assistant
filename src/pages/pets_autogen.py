@@ -119,6 +119,8 @@ async def autogen_response_stream(task: str):
         yield str_stream(this_response)
 
     async for event in st.session_state.team.run_stream(task=task):
+        print(event, end="\n\n")
+
         if isinstance(event, TaskResult):
             ctx_history.add_context({"role": "assistant", "content": full_response})
             return

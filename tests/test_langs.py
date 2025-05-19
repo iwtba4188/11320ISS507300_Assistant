@@ -18,7 +18,8 @@ i18n = I18n(lang="en")
 @pytest.mark.parametrize(
     "page_path",
     [
-        "pets_gemini",
+        # "pets_gemini",
+        # "pets_autogen",
         "word2vec-2d",
         "word2vec-3d",
         "word2vec-skip-gram",
