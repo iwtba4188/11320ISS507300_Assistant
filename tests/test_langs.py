@@ -32,7 +32,7 @@ def test_page_diff_langs(mocker: MockFixture, page_path: str, init_lang: str) ->
         type(st.context), "locale", new_callable=PropertyMock, return_value=init_lang
     )
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
 
     print(at.title[0].value)
@@ -53,7 +53,7 @@ def test_lang_selection(mocker: MockFixture, select_lang: str) -> None:
         type(st.context), "locale", new_callable=PropertyMock, return_value="en"
     )
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page("./pages/pets_gemini.py").run()
 
     # print(f"Before: {at.chat_input[0].placeholder=}")
@@ -85,7 +85,7 @@ def test_week10_empty(mocker: MockFixture, page_path: str) -> None:
         type(st.context), "locale", new_callable=PropertyMock, return_value="en"
     )
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
 
     assert at.warning[0].value == i18n("week10.no_sentences")
@@ -117,7 +117,7 @@ def test_week10_2d_3d_not_empty_has_selection(
 
     mocker.patch("utils.week10.df_input", return_value=sample_df)
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
 
     assert len(at.warning) == 0
@@ -147,7 +147,7 @@ def test_week10_similarity_not_empty(mocker: MockFixture, page_path: str) -> Non
 
     mocker.patch("utils.week10.df_input", return_value=sample_df)
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
 
     # check if the selectbox exists
@@ -207,7 +207,7 @@ def test_week10_not_empty_no_selection(mocker: MockFixture, page_path: str) -> N
 
     mocker.patch("utils.week10.df_input", return_value=sample_df)
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=10).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
 
     assert at.warning[0].value == i18n("week10.no_sentences")

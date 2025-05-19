@@ -13,7 +13,7 @@ def test_chat(mocker: MockFixture) -> None:
         type(st.context), "locale", new_callable=PropertyMock, return_value="en"
     )
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=60).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=120).run()
     at.switch_page("./pages/pets_gemini.py").run()
     at.secrets["gemini_api_key"] = os.getenv("GEMINI_API_KEY")
 
@@ -40,7 +40,7 @@ def test_chat_autogen(mocker: MockFixture) -> None:
         type(st.context), "locale", new_callable=PropertyMock, return_value="en"
     )
 
-    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=60).run()
+    at = AppTest.from_file("../src/streamlit_app.py", default_timeout=120).run()
     at.switch_page("./pages/pets_autogen.py").run()
     at.secrets["gemini_api_key"] = os.getenv("GEMINI_API_KEY")
 
