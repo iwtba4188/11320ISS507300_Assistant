@@ -54,6 +54,7 @@ def page_init() -> None:
 def init_agents() -> None:
     model_client = OpenAIChatCompletionClient(
         model="gemini-2.5-flash-preview-04-17",
+        # model="gemini-2.0-flash",
         model_info=ModelInfo(
             vision=True,
             function_calling=True,
@@ -199,6 +200,7 @@ def chat_bot():
     with chat_container:
         if ctx_history.empty():
             chat_init()
+            pass
         else:
             display_chat_history(ctx_history)
 

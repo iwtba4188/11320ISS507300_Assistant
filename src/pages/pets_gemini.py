@@ -318,6 +318,7 @@ def chat_bot():
     with chat_container:
         if ctx_history.empty():
             chat_init(gemini_response_stream())
+            pass
         else:
             display_chat_history(ctx_history)
 

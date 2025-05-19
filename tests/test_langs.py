@@ -1,3 +1,4 @@
+import time
 from unittest.mock import PropertyMock
 
 import pandas as pd
@@ -35,6 +36,8 @@ def test_page_diff_langs(mocker: MockFixture, page_path: str, init_lang: str) ->
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
 
+    time.sleep(5)
+
     print(at.title[0].value)
     print(at.selectbox)
 
@@ -55,6 +58,8 @@ def test_lang_selection(mocker: MockFixture, select_lang: str) -> None:
 
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page("./pages/pets_gemini.py").run()
+
+    time.sleep(5)
 
     # print(f"Before: {at.chat_input[0].placeholder=}")
     at.selectbox(key="selected_lang").select(select_lang).run()
@@ -85,6 +90,8 @@ def test_week10_empty(mocker: MockFixture, page_path: str) -> None:
 
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
+
+    time.sleep(5)
 
     assert at.warning[0].value == i18n("week10.no_sentences")
 
@@ -118,6 +125,8 @@ def test_week10_2d_3d_not_empty_has_selection(
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
 
+    time.sleep(5)
+
     assert len(at.warning) == 0
 
     assert not at.exception
@@ -147,6 +156,8 @@ def test_week10_similarity_not_empty(mocker: MockFixture, page_path: str) -> Non
 
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
+
+    time.sleep(5)
 
     # check if the selectbox exists
     try:
@@ -207,6 +218,8 @@ def test_week10_not_empty_no_selection(mocker: MockFixture, page_path: str) -> N
 
     at = AppTest.from_file("../src/streamlit_app.py", default_timeout=30).run()
     at.switch_page(f"./pages/{page_path}.py").run()
+
+    time.sleep(5)
 
     assert at.warning[0].value == i18n("week10.no_sentences")
 
