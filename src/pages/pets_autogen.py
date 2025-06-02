@@ -13,8 +13,9 @@ from utils.bots import display_chat_history
 from utils.bots.ctx_mgr import CtxMgr
 from utils.function_call import (
     content_wordcloud,
-    mock_crawling_dcard_article_content,
-    mock_crawling_dcard_urls,
+    # mock_crawling_dcard_article_content,
+    # mock_crawling_dcard_urls,
+    query_top_k_match_contents,
 )
 from utils.helpers import (
     error_badge,
@@ -89,6 +90,7 @@ def init_agents() -> None:
                 "./src/static/Matchmaker_Agent_Prompt.txt"
             ),
             description="A match maker agent that provides match suggestions based on user needs.",
+            tools=[query_top_k_match_contents],
         )
 
     if "head_assistant" not in st.session_state:
@@ -96,8 +98,8 @@ def init_agents() -> None:
             name="head_assistant",
             model_client=model_client,
             tools=[
-                mock_crawling_dcard_urls,
-                mock_crawling_dcard_article_content,
+                # mock_crawling_dcard_urls,
+                # mock_crawling_dcard_article_content,
                 content_wordcloud,
                 AgentTool(agent=st.session_state.budget_assistant),
                 AgentTool(agent=st.session_state.careguide_assistant),

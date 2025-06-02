@@ -48,4 +48,4 @@ Accurate info, practical advice, safe handling of medical/adoption queries, effe
 - 用字精簡
 - 你可以詢問 budget advisor 來幫助使用者更清楚的了解預算細節建議
 - 你可以詢問 care guide 給予使用者更客製化的寵物照護建議
-- 你可以詢問 match maker 來判斷各篇文章描述的寵物和使用者的匹配程度，進而產生更好的領養匹配
+- 你可以詢問 match maker 來得到 dcard 文章有什麼寵物推薦領養，附上網址、相似度（百分比表示，小數後兩位）和相關資訊讓使用者得到這些資訊

@@ -13,9 +13,9 @@ from utils.bots import (
 )
 from utils.bots.ctx_mgr import CtxMgr
 from utils.function_call import (
-    cawling_dcard_urls,
+    # cawling_dcard_urls,
     content_wordcloud,
-    crawling_dcard_article_content,
+    # crawling_dcard_article_content,
 )
 from utils.helpers import (
     error_badge,
@@ -65,8 +65,8 @@ def init_gemini_api_config() -> dict:
     # model = "gemini-2.0-flash"
     tools = [
         # get_awaiting_adoption_pet_info,
-        cawling_dcard_urls,
-        crawling_dcard_article_content,
+        # cawling_dcard_urls,
+        # crawling_dcard_article_content,
         content_wordcloud,
     ]
 
@@ -137,12 +137,12 @@ def execute_func_call(func_call: types.FunctionCall) -> dict:
         #     func_call_result["result"] = get_awaiting_adoption_pet_info()
         if func_call.name == "cawling_dcard_urls":
             func_call_result["status"] = "success"
-            func_call_result["result"] = cawling_dcard_urls(**func_call.args)
+            # func_call_result["result"] = cawling_dcard_urls(**func_call.args)
         elif func_call.name == "crawling_dcard_article_content":
             func_call_result["status"] = "success"
-            func_call_result["result"] = crawling_dcard_article_content(
-                **func_call.args
-            )
+            # func_call_result["result"] = crawling_dcard_article_content(
+            #     **func_call.args
+            # )
         elif func_call.name == "content_wordcloud":
             func_call_result["status"] = "success"
             func_call_result["result"] = content_wordcloud(**func_call.args)
