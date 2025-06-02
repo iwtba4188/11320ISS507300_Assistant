@@ -150,5 +150,9 @@
     "sidebar.page_label.pets.autogen": {
         "message": "Autogen 版本 (推薦)",
         "description": "Label of the pet auto-generate page"
+    },
+    "pets.chat.spinner.rethink_text" : {
+        "message": "正在思考 tool call 的結果...",
+        "description": "The loading text when the chatbot is rethinking in pet consultant page"
     }
 }

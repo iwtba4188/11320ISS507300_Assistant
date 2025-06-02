@@ -150,5 +150,9 @@
     "sidebar.page_label.pets.autogen": {
         "message": "Autogen Version (Recommended)",
         "description": "Label of the pet auto-generate page"
+    },
+    "pets.chat.spinner.rethink_text" : {
+        "message": "Thinking about the tool call results...",
+        "description": "The loading text when the chatbot is rethinking in pet consultant page"
     }
 }

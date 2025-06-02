@@ -20,7 +20,7 @@ from utils.helpers import (
     error_badge,
     info_badge,
     read_file_content,
-    # st_spinner,
+    st_spinner,
     str_stream,
     success_badge,
 )
@@ -115,11 +115,29 @@ def init_agents() -> None:
 
 async def autogen_response_stream(task: str):
     full_response = ""
+    spinner_list = [
+        (
+            "gemini_response",
+            st_spinner(text=i18n("pets.chat.spinner.gemini_response"), show_time=True),
+        ),
+    ]
 
     def record_then_yield(this_response):
         nonlocal full_response
         full_response += this_response
         yield str_stream(this_response)
+
+    def add_spinner(spinner_name, spinner_text):
+        spinner = st_spinner(text=spinner_text, show_time=True)
+        spinner_list.append((spinner_name, spinner))
+        return spinner
+
+    def find_spinner_and_end(spinner_name):
+        for name, spinner in spinner_list:
+            if name == spinner_name:
+                spinner.end()
+                return True
+        return False
 
     async for event in st.session_state.team.run_stream(task=task):
         print(event, end="\n\n")
@@ -131,8 +149,10 @@ async def autogen_response_stream(task: str):
         if event.source == "user":
             continue
 
+        find_spinner_and_end("gemini_response")
         match event.type:
             case "TextMessage":
+                find_spinner_and_end("rethink")
                 yield record_then_yield(event.content)
             case "ThoughtEvent":
                 yield record_then_yield(event.content)
@@ -143,9 +163,14 @@ async def autogen_response_stream(task: str):
                             func_call_name=func_call.name
                         )
                     )
+                    spinner_func_call_text = i18n(
+                        "pets.chat.spinner.func_call_text"
+                    ).format(func_call_name=func_call.name)
+                    add_spinner(func_call.name, spinner_func_call_text)
                     yield record_then_yield(badge_str)
             case "ToolCallExecutionEvent":
                 for result in event.content:
+                    find_spinner_and_end(result.name)
                     if result.is_error:
                         badge_str = error_badge(
                             i18n("pets.chat.badge.func_call_error").format(
@@ -162,6 +187,8 @@ async def autogen_response_stream(task: str):
 
                     if result.name == "content_wordcloud":
                         st.markdown(result.content, unsafe_allow_html=True)
+            case "ToolCallSummaryMessage":
+                add_spinner("rethink", i18n("pets.chat.spinner.rethink_text"))
             case _:
                 pass
 
